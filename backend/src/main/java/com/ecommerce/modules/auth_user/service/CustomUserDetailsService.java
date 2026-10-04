@@ -21,9 +21,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .or(() -> userRepository.findByEmail(username))
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với username hoặc email: " + username));
+        String trimmed = username != null ? username.trim() : "";
+        User user = userRepository.findByUsernameIgnoreCase(trimmed)
+                .or(() -> userRepository.findByEmailIgnoreCase(trimmed))
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với username hoặc email: " + trimmed));
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())

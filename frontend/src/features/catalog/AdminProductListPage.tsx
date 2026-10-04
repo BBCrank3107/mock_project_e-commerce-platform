@@ -13,7 +13,6 @@ import {
   Paper,
   IconButton,
   Chip,
-  Avatar,
   TextField,
   Pagination,
   CircularProgress,
@@ -115,7 +114,7 @@ export const AdminProductListPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, px: { xs: 2, sm: 3 } }}>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
@@ -193,11 +192,32 @@ export const AdminProductListPage: React.FC = () => {
                 <TableRow key={p.id} hover>
                   <TableCell>#{p.id}</TableCell>
                   <TableCell>
-                    <Avatar
-                      variant="rounded"
-                      src={p.thumbnailUrl}
-                      sx={{ width: 48, height: 48, border: '1px solid #e2e8f0' }}
-                    />
+                    <Box
+                      sx={{
+                        width: 52,
+                        height: 52,
+                        minWidth: 52,
+                        aspectRatio: '1 / 1',
+                        borderRadius: 2,
+                        border: '1px solid #e2e8f0',
+                        bgcolor: '#f1f5f9',
+                        overflow: 'hidden',
+                        display: 'block',
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={p.thumbnailUrl || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=500'}
+                        alt={p.name}
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 2,
+                          display: 'block',
+                        }}
+                      />
+                    </Box>
                   </TableCell>
                   <TableCell>
                     <Typography variant="subtitle2" fontWeight="bold">

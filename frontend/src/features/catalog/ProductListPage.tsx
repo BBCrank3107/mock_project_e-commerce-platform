@@ -16,8 +16,18 @@ import {
   Slider,
   CircularProgress,
   InputAdornment,
+  Breadcrumbs,
+  Chip,
+  Divider,
 } from '@mui/material';
-import { Search, FilterAlt, RestartAlt } from '@mui/icons-material';
+import {
+  Search,
+  TuneOutlined,
+  RestartAlt,
+  NavigateNext,
+  StorefrontOutlined,
+} from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 import { catalogApi } from './catalogApi';
 import type { Product, Category } from './types';
 import { ProductCard } from './ProductCard';
@@ -27,7 +37,7 @@ export const ProductListPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // States for Filter, Search, Sort, Paging (Requirements)
+  // States for Filter, Search, Sort, Paging
   const [keyword, setKeyword] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState<number | undefined>(undefined);
   const [priceRange, setPriceRange] = useState<number[]>([0, 60000000]);
@@ -37,12 +47,10 @@ export const ProductListPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
 
-  // Fetch categories once
   useEffect(() => {
     catalogApi.getCategories().then(setCategories).catch(console.error);
   }, []);
 
-  // Fetch products on filter changes
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -54,7 +62,7 @@ export const ProductListPage: React.FC = () => {
           maxPrice: priceRange[1] < 60000000 ? priceRange[1] : undefined,
           sortBy,
           sortDir,
-          page: page - 1, // API 0-indexed
+          page: page - 1,
           size: 6,
         });
         setProducts(res.content);
@@ -84,54 +92,78 @@ export const ProductListPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Banner Header */}
-      <Box
-        sx={{
-          p: 4,
-          mb: 4,
-          borderRadius: 4,
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0369a1 100%)',
-          color: 'white',
-        }}
-      >
-        <Typography variant="h4" fontWeight={800} gutterBottom>
-          Khám Phá Công Nghệ Đỉnh Cao
+    <Container maxWidth="lg" sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
+      {/* Breadcrumb điều hướng tự nhiên */}
+      <Breadcrumbs separator={<NavigateNext fontSize="small" />} sx={{ mb: 2.5 }}>
+        <Typography component={Link} to="/" color="text.secondary" variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <StorefrontOutlined fontSize="inherit" /> Trang chủ
         </Typography>
-        <Typography variant="body1" sx={{ color: '#94a3b8', maxWidth: 600 }}>
-          Trải nghiệm các dòng sản phẩm chính hãng với mức giá ưu đãi nhất tại CyberTech Store.
+        <Typography color="text.primary" variant="body2" fontWeight={600}>
+          Sản phẩm công nghệ
         </Typography>
+      </Breadcrumbs>
+
+      {/* Header tiêu đề đơn giản, chuyên nghiệp - KHÔNG GRADIENT */}
+      <Box sx={{ mb: 3.5, pb: 2, borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h5" fontWeight={800} color="#0f172a" sx={{ letterSpacing: '-0.5px' }}>
+            Danh Sách Sản Phẩm
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Thiết bị chính hãng, bảo hành toàn diện tại CyberTech Store
+          </Typography>
+        </Box>
+        <Chip
+          label={`${totalElements} sản phẩm`}
+          color="default"
+          variant="outlined"
+          sx={{ fontWeight: 600, borderColor: '#cbd5e1' }}
+        />
       </Box>
 
-      <Grid container spacing={4}>
-        {/* CỘT BỘ LỌC (FILTERING) */}
-        <Grid item xs={12} md={3}>
-          <Card sx={{ borderRadius: 3, boxShadow: 2, position: 'sticky', top: 80 }}>
-            <CardContent sx={{ p: 3 }}>
+      <Grid container spacing={{ xs: 2.5, md: 3 }}>
+        {/* CỘT BỘ LỌC BÊN TRÁI (FILTER) */}
+        <Grid item xs={12} md={3.5} lg={3}>
+          <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+            <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <FilterAlt color="primary" /> Bộ Lọc
+                <Typography variant="subtitle1" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#0f172a' }}>
+                  <TuneOutlined fontSize="small" color="primary" /> Bộ lọc
                 </Typography>
-                <Button size="small" startIcon={<RestartAlt />} onClick={handleResetFilter}>
-                  Đặt lại
-                </Button>
+                {(selectedSubcategory !== undefined || keyword || priceRange[0] > 0 || priceRange[1] < 60000000) && (
+                  <Button
+                    size="small"
+                    startIcon={<RestartAlt />}
+                    onClick={handleResetFilter}
+                    sx={{ fontSize: '0.8rem', p: 0.5 }}
+                  >
+                    Xóa lọc
+                  </Button>
+                )}
               </Box>
 
+              <Divider sx={{ mb: 2 }} />
+
               {/* Lọc theo danh mục */}
-              <Typography variant="subtitle2" fontWeight="bold" sx={{ mt: 2, mb: 1 }}>
-                Danh Mục Sản Phẩm
+              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', mb: 1 }}>
+                Danh mục
               </Typography>
               <RadioGroup
-                value={selectedSubcategory || ''}
+                value={selectedSubcategory ?? ''}
                 onChange={(e) => {
-                  setSelectedSubcategory(e.target.value ? Number(e.target.value) : undefined);
+                  setSelectedSubcategory(e.target.value !== '' ? Number(e.target.value) : undefined);
                   setPage(1);
                 }}
               >
-                <FormControlLabel value="" control={<Radio size="small" />} label="Tất cả sản phẩm" />
+                <FormControlLabel
+                  value=""
+                  control={<Radio size="small" />}
+                  label={<Typography variant="body2">Tất cả sản phẩm</Typography>}
+                  sx={{ mb: 0.5 }}
+                />
                 {categories.map((cat) => (
-                  <Box key={cat.id} sx={{ mb: 1 }}>
-                    <Typography variant="caption" fontWeight="bold" color="text.secondary">
+                  <Box key={cat.id} sx={{ mb: 1.5 }}>
+                    <Typography variant="body2" fontWeight={600} color="#334155" sx={{ py: 0.5 }}>
                       {cat.name}
                     </Typography>
                     {cat.subcategories?.map((sub) => (
@@ -139,17 +171,19 @@ export const ProductListPage: React.FC = () => {
                         key={sub.id}
                         value={sub.id}
                         control={<Radio size="small" />}
-                        label={sub.name}
-                        sx={{ display: 'block', ml: 1 }}
+                        label={<Typography variant="body2" color="text.secondary">{sub.name}</Typography>}
+                        sx={{ display: 'block', ml: 1, my: 0.2 }}
                       />
                     ))}
                   </Box>
                 ))}
               </RadioGroup>
 
+              <Divider sx={{ my: 2.5 }} />
+
               {/* Lọc theo khoảng giá */}
-              <Typography variant="subtitle2" fontWeight="bold" sx={{ mt: 3, mb: 1 }}>
-                Khoảng Giá (VNĐ)
+              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', mb: 1.5 }}>
+                Khoảng giá (VNĐ)
               </Typography>
               <Box sx={{ px: 1 }}>
                 <Slider
@@ -161,12 +195,13 @@ export const ProductListPage: React.FC = () => {
                   max={60000000}
                   step={1000000}
                   valueLabelFormat={(val) => formatVND(val)}
+                  size="small"
                 />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
                     {formatVND(priceRange[0])}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
                     {formatVND(priceRange[1])}
                   </Typography>
                 </Box>
@@ -175,9 +210,9 @@ export const ProductListPage: React.FC = () => {
           </Card>
         </Grid>
 
-        {/* CỘT DANH SÁCH SẢN PHẨM (LIST VIEW: SEARCH, SORT, PAGING) */}
-        <Grid item xs={12} md={9}>
-          {/* Controls Bar: Searching & Sorting */}
+        {/* CỘT SẢN PHẨM BÊN PHẢI (LIST VIEW) */}
+        <Grid item xs={12} md={8.5} lg={9}>
+          {/* Thanh công cụ Tìm kiếm và Sắp xếp */}
           <Box
             sx={{
               display: 'flex',
@@ -186,9 +221,13 @@ export const ProductListPage: React.FC = () => {
               justifyContent: 'space-between',
               alignItems: 'center',
               mb: 3,
+              p: 2,
+              bgcolor: '#ffffff',
+              borderRadius: 3,
+              border: '1px solid #e2e8f0',
             }}
           >
-            {/* Searching */}
+            {/* Search Input */}
             <TextField
               size="small"
               placeholder="Tìm kiếm sản phẩm theo tên..."
@@ -197,20 +236,20 @@ export const ProductListPage: React.FC = () => {
                 setKeyword(e.target.value);
                 setPage(1);
               }}
-              sx={{ minWidth: 320, bgcolor: 'background.paper', borderRadius: 2 }}
+              sx={{ flexGrow: 1, maxWidth: { xs: '100%', sm: 360 } }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Search color="action" />
+                    <Search fontSize="small" color="action" />
                   </InputAdornment>
                 ),
               }}
             />
 
-            {/* Sorting */}
+            {/* Sort Selector */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                Sắp xếp theo:
+              <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+                Sắp xếp:
               </Typography>
               <TextField
                 select
@@ -222,7 +261,7 @@ export const ProductListPage: React.FC = () => {
                   setSortDir(dir);
                   setPage(1);
                 }}
-                sx={{ minWidth: 180, bgcolor: 'background.paper', borderRadius: 2 }}
+                sx={{ minWidth: 160 }}
               >
                 <MenuItem value="createdAt-desc">Mới nhất</MenuItem>
                 <MenuItem value="price-asc">Giá tăng dần</MenuItem>
@@ -232,30 +271,26 @@ export const ProductListPage: React.FC = () => {
             </Box>
           </Box>
 
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Tìm thấy <b>{totalElements}</b> sản phẩm phù hợp
-          </Typography>
-
-          {/* Grid Products */}
+          {/* Lưới sản phẩm */}
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 12 }}>
+              <CircularProgress size={36} />
             </Box>
           ) : products.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 8, bgcolor: 'background.paper', borderRadius: 3 }}>
-              <Typography variant="h6" color="text.secondary">
-                Không tìm thấy sản phẩm nào!
+            <Box sx={{ textAlign: 'center', py: 8, bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #e2e8f0' }}>
+              <Typography variant="subtitle1" fontWeight={600} color="#0f172a">
+                Không tìm thấy sản phẩm nào
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
                 Vui lòng thử lại với từ khóa hoặc bộ lọc khác.
               </Typography>
-              <Button variant="outlined" sx={{ mt: 2 }} onClick={handleResetFilter}>
-                Đặt lại bộ lọc
+              <Button variant="outlined" size="small" onClick={handleResetFilter}>
+                Xóa bộ lọc
               </Button>
             </Box>
           ) : (
             <>
-              <Grid container spacing={3}>
+              <Grid container spacing={2.5}>
                 {products.map((product) => (
                   <Grid item key={product.id} xs={12} sm={6} lg={4}>
                     <ProductCard product={product} />
@@ -263,15 +298,15 @@ export const ProductListPage: React.FC = () => {
                 ))}
               </Grid>
 
-              {/* Paging Component (Yêu cầu Pagination) */}
+              {/* Phân trang chuẩn */}
               {totalPages > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, pt: 2 }}>
                   <Pagination
                     count={totalPages}
                     page={page}
                     onChange={(_, value) => setPage(value)}
                     color="primary"
-                    size="large"
+                    shape="rounded"
                     showFirstButton
                     showLastButton
                   />
