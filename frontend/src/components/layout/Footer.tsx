@@ -22,7 +22,7 @@ export const Footer: React.FC = () => {
         mt: 'auto',
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
         {/* Cam kết thương hiệu */}
         <Grid container spacing={3} sx={{ pb: 5, mb: 5, borderBottom: '1px solid #f1f5f9' }}>
           <Grid item xs={12} sm={4}>

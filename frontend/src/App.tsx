@@ -30,6 +30,15 @@ const theme = createTheme({
       secondary: '#64748b',
     },
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1440,
+    },
+  },
   typography: {
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     button: {
@@ -41,6 +50,16 @@ const theme = createTheme({
     borderRadius: 8,
   },
   components: {
+    MuiContainer: {
+      defaultProps: {
+        maxWidth: 'lg',
+      },
+      styleOverrides: {
+        maxWidthLg: {
+          maxWidth: '1200px !important',
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {

@@ -55,7 +55,7 @@ export const Navbar: React.FC = () => {
         zIndex: 1100,
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
         <Toolbar disableGutters sx={{ minHeight: 68, justifyContent: 'space-between' }}>
           {/* Brand Logo */}
           <Box

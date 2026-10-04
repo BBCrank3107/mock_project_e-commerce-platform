@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Card,
-  CardMedia,
   CardContent,
   Typography,
   Box,
@@ -63,33 +62,37 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         />
       )}
 
-      {/* Ảnh sản phẩm */}
+      {/* Ảnh sản phẩm chuẩn 1:1, bo góc, cùng 1 kích thước */}
       <Box
         component={Link}
         to={`/products/${product.id}`}
         sx={{
           position: 'relative',
-          pt: '80%',
+          width: 'calc(100% - 20px)',
+          aspectRatio: '1 / 1',
+          m: '10px 10px 0 10px',
           bgcolor: '#f8fafc',
+          borderRadius: 2.5,
           overflow: 'hidden',
-          display: 'block',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid #f1f5f9',
         }}
       >
-        <CardMedia
+        <Box
           component="img"
-          image={product.thumbnailUrl || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=500'}
+          src={product.thumbnailUrl || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=500'}
           alt={product.name}
           sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
             width: '100%',
             height: '100%',
             objectFit: 'contain',
             p: 2,
+            borderRadius: 2.5,
             transition: 'transform 0.3s ease',
             '&:hover': {
-              transform: 'scale(1.04)',
+              transform: 'scale(1.05)',
             },
           }}
         />

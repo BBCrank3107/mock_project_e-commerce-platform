@@ -92,7 +92,7 @@ export const ProductListPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Container maxWidth="lg" sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
       {/* Breadcrumb điều hướng tự nhiên */}
       <Breadcrumbs separator={<NavigateNext fontSize="small" />} sx={{ mb: 2.5 }}>
         <Typography component={Link} to="/" color="text.secondary" variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -121,9 +121,9 @@ export const ProductListPage: React.FC = () => {
         />
       </Box>
 
-      <Grid container spacing={3.5}>
+      <Grid container spacing={{ xs: 2.5, md: 3 }}>
         {/* CỘT BỘ LỌC BÊN TRÁI (FILTER) */}
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={3.5} lg={3}>
           <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -211,7 +211,7 @@ export const ProductListPage: React.FC = () => {
         </Grid>
 
         {/* CỘT SẢN PHẨM BÊN PHẢI (LIST VIEW) */}
-        <Grid item xs={12} md={9}>
+        <Grid item xs={12} md={8.5} lg={9}>
           {/* Thanh công cụ Tìm kiếm và Sắp xếp */}
           <Box
             sx={{
