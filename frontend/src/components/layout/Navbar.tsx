@@ -12,11 +12,15 @@ import {
   MenuItem,
   Avatar,
   Chip,
+  Divider,
 } from '@mui/material';
 import {
-  ShoppingCart,
-  Dashboard,
-  Storefront,
+  ShoppingCartOutlined,
+  AdminPanelSettingsOutlined,
+  LogoutOutlined,
+  PersonOutline,
+  StorefrontOutlined,
+  Inventory2Outlined,
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -41,10 +45,19 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="sticky" sx={{ bgcolor: '#0f172a', boxShadow: 3 }}>
+    <AppBar
+      position="sticky"
+      elevation={0}
+      sx={{
+        bgcolor: '#ffffff',
+        borderBottom: '1px solid #e2e8f0',
+        color: '#0f172a',
+        zIndex: 1100,
+      }}
+    >
       <Container maxWidth="xl">
-        <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-          {/* Logo */}
+        <Toolbar disableGutters sx={{ minHeight: 68, justifyContent: 'space-between' }}>
+          {/* Brand Logo */}
           <Box
             component={Link}
             to="/"
@@ -52,106 +65,185 @@ export const Navbar: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               textDecoration: 'none',
-              color: 'inherit',
+              gap: 1.2,
             }}
           >
-            <Storefront sx={{ mr: 1, fontSize: 32, color: '#38bdf8' }} />
-            <Typography
-              variant="h6"
-              noWrap
+            <Box
               sx={{
-                fontWeight: 800,
-                letterSpacing: '.1rem',
-                color: '#f8fafc',
+                width: 38,
+                height: 38,
+                borderRadius: 2,
+                bgcolor: 'primary.main',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              CYBER<span style={{ color: '#38bdf8' }}>TECH</span>
-            </Typography>
+              <StorefrontOutlined fontSize="small" />
+            </Box>
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 800,
+                  letterSpacing: '-0.5px',
+                  color: '#0f172a',
+                  lineHeight: 1.1,
+                }}
+              >
+                CyberTech
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: '#64748b',
+                  fontSize: '0.7rem',
+                  fontWeight: 500,
+                  display: 'block',
+                }}
+              >
+                Cửa hàng công nghệ
+              </Typography>
+            </Box>
           </Box>
 
-          {/* Nav Links */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Navigation Actions */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Button
               component={Link}
               to="/"
-              sx={{ color: '#e2e8f0', fontWeight: 'bold' }}
+              sx={{
+                color: '#334155',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                px: 2,
+                '&:hover': { bgcolor: '#f1f5f9' },
+              }}
             >
-              Sản Phẩm
+              Sản phẩm
             </Button>
 
             {isAdmin && (
               <Button
                 component={Link}
                 to="/admin/products"
-                startIcon={<Dashboard />}
+                startIcon={<AdminPanelSettingsOutlined />}
                 variant="outlined"
-                color="secondary"
+                size="small"
                 sx={{
-                  borderColor: '#818cf8',
-                  color: '#c7d2fe',
-                  '&:hover': { borderColor: '#a5b4fc', bgcolor: 'rgba(99, 102, 241, 0.1)' },
+                  borderColor: '#cbd5e1',
+                  color: '#0f172a',
+                  fontWeight: 600,
+                  borderRadius: 2,
+                  px: 1.8,
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    bgcolor: '#f0f9ff',
+                  },
                 }}
               >
-                Quản Trị (Admin)
+                Quản trị Admin
               </Button>
             )}
 
-            {/* Cart Icon (Placeholder cho Member B nối) */}
+            {/* Shopping Cart Button */}
             <IconButton
               component={Link}
               to="/cart"
-              sx={{ color: '#e2e8f0' }}
+              sx={{
+                color: '#334155',
+                border: '1px solid #e2e8f0',
+                borderRadius: 2,
+                p: 1,
+                '&:hover': { bgcolor: '#f1f5f9' },
+              }}
             >
               <Badge badgeContent={2} color="error">
-                <ShoppingCart />
+                <ShoppingCartOutlined fontSize="small" />
               </Badge>
             </IconButton>
 
-            {/* Auth section */}
+            {/* User Authentication Menu */}
             {isAuthenticated ? (
               <Box>
-                <IconButton onClick={handleOpenMenu} sx={{ p: 0 }}>
+                <Button
+                  onClick={handleOpenMenu}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    textTransform: 'none',
+                    p: 0.5,
+                    pr: 1.5,
+                    border: '1px solid #e2e8f0',
+                    borderRadius: 2,
+                    '&:hover': { bgcolor: '#f1f5f9' },
+                  }}
+                >
                   <Avatar
                     alt={user?.fullName}
                     src={user?.avatarUrl}
-                    sx={{ width: 36, height: 36, border: '2px solid #38bdf8' }}
-                  />
-                </IconButton>
+                    sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
+                  >
+                    {user?.fullName?.charAt(0) || <PersonOutline fontSize="small" />}
+                  </Avatar>
+                  <Box sx={{ textAlign: 'left', display: { xs: 'none', sm: 'block' } }}>
+                    <Typography variant="body2" fontWeight={600} color="#0f172a" noWrap>
+                      {user?.fullName}
+                    </Typography>
+                  </Box>
+                </Button>
+
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
                   onClose={handleCloseMenu}
-                  sx={{ mt: 1.5 }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      minWidth: 220,
+                      borderRadius: 3,
+                      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                      border: '1px solid #e2e8f0',
+                    },
+                  }}
                 >
-                  <MenuItem disabled>
-                    <Box>
-                      <Typography variant="subtitle2" fontWeight="bold">
-                        {user?.fullName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        @{user?.username}
-                      </Typography>
-                      {isAdmin && (
+                  <Box sx={{ px: 2, py: 1.5 }}>
+                    <Typography variant="subtitle2" fontWeight={700}>
+                      {user?.fullName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      @{user?.username}
+                    </Typography>
+                    {isAdmin && (
+                      <Box sx={{ mt: 0.8 }}>
                         <Chip
-                          label="ADMIN"
-                          color="error"
+                          label="QUẢN TRỊ VIÊN"
+                          color="primary"
                           size="small"
-                          sx={{ ml: 1, height: 20 }}
+                          sx={{ height: 22, fontSize: '0.65rem', fontWeight: 700 }}
                         />
-                      )}
-                    </Box>
-                  </MenuItem>
+                      </Box>
+                    )}
+                  </Box>
+                  <Divider />
                   {isAdmin && (
                     <MenuItem
                       component={Link}
                       to="/admin/products"
                       onClick={handleCloseMenu}
+                      sx={{ py: 1.2, gap: 1.5 }}
                     >
-                      Quản lý sản phẩm
+                      <Inventory2Outlined fontSize="small" color="action" />
+                      <Typography variant="body2">Quản lý sản phẩm</Typography>
                     </MenuItem>
                   )}
-                  <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-                    Đăng xuất
+                  <MenuItem onClick={handleLogout} sx={{ py: 1.2, gap: 1.5, color: 'error.main' }}>
+                    <LogoutOutlined fontSize="small" />
+                    <Typography variant="body2" fontWeight={600}>
+                      Đăng xuất
+                    </Typography>
                   </MenuItem>
                 </Menu>
               </Box>
@@ -161,17 +253,29 @@ export const Navbar: React.FC = () => {
                   component={Link}
                   to="/login"
                   variant="outlined"
-                  sx={{ color: '#38bdf8', borderColor: '#38bdf8' }}
+                  size="small"
+                  sx={{
+                    borderColor: '#cbd5e1',
+                    color: '#0f172a',
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    px: 2,
+                  }}
                 >
-                  Đăng Nhập
+                  Đăng nhập
                 </Button>
                 <Button
                   component={Link}
                   to="/register"
                   variant="contained"
-                  sx={{ bgcolor: '#38bdf8', color: '#0f172a', fontWeight: 'bold' }}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    px: 2,
+                  }}
                 >
-                  Đăng Ký
+                  Đăng ký
                 </Button>
               </Box>
             )}

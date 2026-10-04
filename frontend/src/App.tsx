@@ -8,24 +8,66 @@ import { AppRoutes } from './routes/AppRoutes';
 
 const theme = createTheme({
   palette: {
+    mode: 'light',
     primary: {
-      main: '#0284c7', // Sky blue
+      main: '#0284c7', // Brand blue
       dark: '#0369a1',
       light: '#38bdf8',
+      contrastText: '#ffffff',
     },
     secondary: {
-      main: '#6366f1', // Indigo
+      main: '#475569',
+    },
+    error: {
+      main: '#dc2626',
     },
     background: {
       default: '#f8fafc',
       paper: '#ffffff',
     },
+    text: {
+      primary: '#0f172a',
+      secondary: '#64748b',
+    },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    button: {
+      textTransform: 'none',
+      fontWeight: 600,
+    },
   },
   shape: {
     borderRadius: 8,
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: 'none',
+          },
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
+          border: '1px solid #e2e8f0',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
   },
 });
 
@@ -35,9 +77,9 @@ export const App: React.FC = () => {
       <CssBaseline />
       <AuthProvider>
         <BrowserRouter>
-          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
             <Navbar />
-            <Box component="main" sx={{ flexGrow: 1 }}>
+            <Box component="main" sx={{ flexGrow: 1, width: '100%' }}>
               <AppRoutes />
             </Box>
             <Footer />
