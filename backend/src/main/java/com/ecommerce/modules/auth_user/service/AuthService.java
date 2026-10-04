@@ -76,13 +76,20 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+        String loginIdentifier = request.getUsername() != null ? request.getUsername().trim() : "";
+        String password = request.getPassword() != null ? request.getPassword() : "";
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .or(() -> userRepository.findByEmail(request.getUsername()))
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người dùng"));
+        User user = userRepository.findByUsernameIgnoreCase(loginIdentifier)
+                .or(() -> userRepository.findByEmailIgnoreCase(loginIdentifier))
+                .orElseThrow(() -> new RuntimeException("Tài khoản hoặc email '" + loginIdentifier + "' không tồn tại trong hệ thống!"));
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), password)
+            );
+        } catch (Exception ex) {
+            throw new RuntimeException("Mật khẩu không chính xác. Vui lòng kiểm tra lại!");
+        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
         String token = jwtService.generateToken(userDetails);

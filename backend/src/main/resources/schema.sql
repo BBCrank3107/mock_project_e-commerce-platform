@@ -228,7 +228,7 @@ CREATE INDEX idx_cart_items_cart ON cart_items(cart_id);
 
 -- ==============================================================================
 -- COMPREHENSIVE SEED DATA (CYBERTECH STORE)
--- Password mặc định: 123456 (BCrypt: $2a$10$wO3nC78qQxVqg1Zp9Hj0iO45FqK/q6M18pI1G9dF0Yl.YgGvB6f7e)
+-- Password mặc định: 123456 (BCrypt: $2a$10$vENG9oojbP47y01jzk.Dt.B7xqHfo9FY5p7umi6cr6avumFH45HSO)
 -- ==============================================================================
 
 -- 1. Roles
@@ -239,9 +239,9 @@ INSERT INTO roles (name, description) VALUES
 
 -- 2. Users
 INSERT INTO users (username, email, password, full_name, phone, avatar_url, is_active) VALUES
-('admin', 'admin@cybertech.vn', '$2a$10$wO3nC78qQxVqg1Zp9Hj0iO45FqK/q6M18pI1G9dF0Yl.YgGvB6f7e', 'Quản Trị Viên CyberTech', '0988123456', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', TRUE),
-('customer', 'customer@gmail.com', '$2a$10$wO3nC78qQxVqg1Zp9Hj0iO45FqK/q6M18pI1G9dF0Yl.YgGvB6f7e', 'Nguyễn Văn An', '0912345678', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', TRUE),
-('hoangnam', 'nam.tran@gmail.com', '$2a$10$wO3nC78qQxVqg1Zp9Hj0iO45FqK/q6M18pI1G9dF0Yl.YgGvB6f7e', 'Trần Hoàng Nam', '0909888999', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', TRUE);
+('admin', 'admin@cybertech.vn', '$2a$10$vENG9oojbP47y01jzk.Dt.B7xqHfo9FY5p7umi6cr6avumFH45HSO', 'Quản Trị Viên CyberTech', '0988123456', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', TRUE),
+('customer', 'customer@gmail.com', '$2a$10$vENG9oojbP47y01jzk.Dt.B7xqHfo9FY5p7umi6cr6avumFH45HSO', 'Nguyễn Văn An', '0912345678', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', TRUE),
+('hoangnam', 'nam.tran@gmail.com', '$2a$10$vENG9oojbP47y01jzk.Dt.B7xqHfo9FY5p7umi6cr6avumFH45HSO', 'Trần Hoàng Nam', '0909888999', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', TRUE);
 
 -- Gán quyền User
 INSERT INTO user_roles (user_id, role_id) VALUES

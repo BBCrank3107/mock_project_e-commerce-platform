@@ -252,9 +252,12 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
                     sx={{
                       width: 120,
                       height: 120,
-                      objectFit: 'cover',
+                      aspectRatio: '1 / 1',
+                      objectFit: 'contain',
                       borderRadius: 2,
                       border: '1px solid #cbd5e1',
+                      bgcolor: '#f8fafc',
+                      p: 1,
                     }}
                   />
                 </Box>

@@ -112,7 +112,7 @@ export const ProductDetailPage: React.FC = () => {
   const hasDiscount = product.discountPrice && product.discountPrice < product.price;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Container maxWidth="lg" sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
       {/* Breadcrumb */}
       <Breadcrumbs separator={<NavigateNext fontSize="small" />} sx={{ mb: 3 }}>
         <Typography component={Link} to="/" color="text.secondary" variant="body2">
@@ -126,17 +126,21 @@ export const ProductDetailPage: React.FC = () => {
         </Typography>
       </Breadcrumbs>
 
-      <Grid container spacing={5}>
+      <Grid container spacing={{ xs: 3, md: 5 }}>
         {/* Gallery Ảnh bên trái */}
         <Grid item xs={12} md={6}>
           <Box
             sx={{
+              width: '100%',
+              aspectRatio: '1 / 1',
               borderRadius: 3,
               overflow: 'hidden',
               bgcolor: '#ffffff',
               border: '1px solid #e2e8f0',
-              textAlign: 'center',
-              p: 3,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: { xs: 2, sm: 3 },
             }}
           >
             <Box
@@ -145,8 +149,9 @@ export const ProductDetailPage: React.FC = () => {
               alt={product.name}
               sx={{
                 width: '100%',
-                maxHeight: 440,
+                height: '100%',
                 objectFit: 'contain',
+                borderRadius: 2,
               }}
             />
           </Box>
@@ -160,8 +165,10 @@ export const ProductDetailPage: React.FC = () => {
                 alt="thumb"
                 onClick={() => setActiveImage(product.thumbnailUrl)}
                 sx={{
-                  width: 68,
-                  height: 68,
+                  width: 72,
+                  height: 72,
+                  minWidth: 72,
+                  aspectRatio: '1 / 1',
                   objectFit: 'contain',
                   borderRadius: 2,
                   p: 0.5,
@@ -178,8 +185,10 @@ export const ProductDetailPage: React.FC = () => {
                   alt={`thumb-${idx}`}
                   onClick={() => setActiveImage(url)}
                   sx={{
-                    width: 68,
-                    height: 68,
+                    width: 72,
+                    height: 72,
+                    minWidth: 72,
+                    aspectRatio: '1 / 1',
                     objectFit: 'contain',
                     borderRadius: 2,
                     p: 0.5,
