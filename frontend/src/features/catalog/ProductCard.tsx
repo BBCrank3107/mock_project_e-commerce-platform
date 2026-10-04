@@ -62,22 +62,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         />
       )}
 
-      {/* Ảnh sản phẩm chuẩn 1:1, bo góc, cùng 1 kích thước */}
+      {/* Ảnh sản phẩm chuẩn 1:1 vuông đồng nhất, lấp đầy, bo góc */}
       <Box
         component={Link}
         to={`/products/${product.id}`}
         sx={{
           position: 'relative',
-          width: 'calc(100% - 20px)',
+          width: '100%',
           aspectRatio: '1 / 1',
-          m: '10px 10px 0 10px',
-          bgcolor: '#f8fafc',
-          borderRadius: 2.5,
+          bgcolor: '#f1f5f9',
+          borderRadius: '10px 10px 0 0',
           overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid #f1f5f9',
+          display: 'block',
         }}
       >
         <Box
@@ -87,12 +83,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           sx={{
             width: '100%',
             height: '100%',
-            objectFit: 'contain',
-            p: 2,
-            borderRadius: 2.5,
-            transition: 'transform 0.3s ease',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            display: 'block',
+            transition: 'transform 0.35s ease',
             '&:hover': {
-              transform: 'scale(1.05)',
+              transform: 'scale(1.06)',
             },
           }}
         />
