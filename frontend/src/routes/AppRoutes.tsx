@@ -27,7 +27,7 @@ export const AppRoutes: React.FC = () => {
         element={
           <Container sx={{ py: 8, textAlign: 'center' }}>
             <Typography variant="h5" fontWeight="bold">
-              🛒 Giỏ Hàng & Thanh Toán
+              Giỏ Hàng & Thanh Toán
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
               Phân hệ đang được hoàn thiện bởi Thành viên B (Order & Checkout module).

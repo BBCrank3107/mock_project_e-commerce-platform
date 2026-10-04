@@ -14,8 +14,16 @@ import {
   Alert,
   Avatar,
   CircularProgress,
+  Breadcrumbs,
 } from '@mui/material';
-import { ShoppingCart, ArrowBack } from '@mui/icons-material';
+import {
+  AddShoppingCartOutlined,
+  ArrowBackIosNewOutlined,
+  NavigateNext,
+  LocalShippingOutlined,
+  VerifiedUserOutlined,
+  RateReviewOutlined,
+} from '@mui/icons-material';
 import { useParams, Link } from 'react-router-dom';
 import { catalogApi } from './catalogApi';
 import type { Product, Review } from './types';
@@ -84,8 +92,8 @@ export const ProductDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 12 }}>
-        <CircularProgress />
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 14 }}>
+        <CircularProgress size={36} />
       </Box>
     );
   }
@@ -93,8 +101,8 @@ export const ProductDetailPage: React.FC = () => {
   if (!product) {
     return (
       <Container sx={{ py: 8, textAlign: 'center' }}>
-        <Typography variant="h5" color="error">Không tìm thấy sản phẩm!</Typography>
-        <Button component={Link} to="/" variant="outlined" sx={{ mt: 2 }} startIcon={<ArrowBack />}>
+        <Typography variant="h6" color="error">Không tìm thấy sản phẩm!</Typography>
+        <Button component={Link} to="/" variant="outlined" sx={{ mt: 2 }} startIcon={<ArrowBackIosNewOutlined />}>
           Quay lại danh sách
         </Button>
       </Container>
@@ -104,22 +112,31 @@ export const ProductDetailPage: React.FC = () => {
   const hasDiscount = product.discountPrice && product.discountPrice < product.price;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 5 }}>
-      <Button component={Link} to="/" startIcon={<ArrowBack />} sx={{ mb: 3 }}>
-        Quay lại trang sản phẩm
-      </Button>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Breadcrumb */}
+      <Breadcrumbs separator={<NavigateNext fontSize="small" />} sx={{ mb: 3 }}>
+        <Typography component={Link} to="/" color="text.secondary" variant="body2">
+          Trang chủ
+        </Typography>
+        <Typography color="text.secondary" variant="body2">
+          {product.categoryName}
+        </Typography>
+        <Typography color="text.primary" variant="body2" fontWeight={600} noWrap sx={{ maxWidth: 300 }}>
+          {product.name}
+        </Typography>
+      </Breadcrumbs>
 
       <Grid container spacing={5}>
-        {/* Gallery Ảnh */}
+        {/* Gallery Ảnh bên trái */}
         <Grid item xs={12} md={6}>
           <Box
             sx={{
               borderRadius: 3,
               overflow: 'hidden',
-              bgcolor: '#f8fafc',
+              bgcolor: '#ffffff',
               border: '1px solid #e2e8f0',
               textAlign: 'center',
-              p: 2,
+              p: 3,
             }}
           >
             <Box
@@ -128,28 +145,29 @@ export const ProductDetailPage: React.FC = () => {
               alt={product.name}
               sx={{
                 width: '100%',
-                maxHeight: 480,
+                maxHeight: 440,
                 objectFit: 'contain',
-                borderRadius: 2,
               }}
             />
           </Box>
 
           {/* Thumbnails */}
           {product.imageUrls && product.imageUrls.length > 0 && (
-            <Box sx={{ display: 'flex', gap: 2, mt: 2, overflowX: 'auto', py: 1 }}>
+            <Box sx={{ display: 'flex', gap: 1.5, mt: 2, overflowX: 'auto', py: 0.5 }}>
               <Box
                 component="img"
                 src={product.thumbnailUrl}
                 alt="thumb"
                 onClick={() => setActiveImage(product.thumbnailUrl)}
                 sx={{
-                  width: 70,
-                  height: 70,
-                  objectFit: 'cover',
+                  width: 68,
+                  height: 68,
+                  objectFit: 'contain',
                   borderRadius: 2,
+                  p: 0.5,
                   cursor: 'pointer',
-                  border: activeImage === product.thumbnailUrl ? '2px solid #38bdf8' : '1px solid #cbd5e1',
+                  bgcolor: '#ffffff',
+                  border: activeImage === product.thumbnailUrl ? '2px solid #0284c7' : '1px solid #e2e8f0',
                 }}
               />
               {product.imageUrls.map((url, idx) => (
@@ -160,12 +178,14 @@ export const ProductDetailPage: React.FC = () => {
                   alt={`thumb-${idx}`}
                   onClick={() => setActiveImage(url)}
                   sx={{
-                    width: 70,
-                    height: 70,
-                    objectFit: 'cover',
+                    width: 68,
+                    height: 68,
+                    objectFit: 'contain',
                     borderRadius: 2,
+                    p: 0.5,
                     cursor: 'pointer',
-                    border: activeImage === url ? '2px solid #38bdf8' : '1px solid #cbd5e1',
+                    bgcolor: '#ffffff',
+                    border: activeImage === url ? '2px solid #0284c7' : '1px solid #e2e8f0',
                   }}
                 />
               ))}
@@ -173,71 +193,85 @@ export const ProductDetailPage: React.FC = () => {
           )}
         </Grid>
 
-        {/* Thông tin sản phẩm */}
+        {/* Thông tin sản phẩm bên phải */}
         <Grid item xs={12} md={6}>
-          <Chip label={product.subcategoryName} color="primary" size="small" sx={{ mb: 1.5 }} />
-          <Typography variant="h4" fontWeight={800} gutterBottom>
+          <Chip label={product.subcategoryName} size="small" variant="outlined" sx={{ mb: 1.5, fontWeight: 600 }} />
+          <Typography variant="h5" fontWeight={800} color="#0f172a" sx={{ lineHeight: 1.3, mb: 1.5 }}>
             {product.name}
           </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-            <Rating value={4.8} precision={0.1} readOnly />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5 }}>
+            <Rating value={4.8} precision={0.1} readOnly size="small" />
             <Typography variant="body2" color="text.secondary">
-              ({reviews.length} đánh giá khách hàng)
+              ({reviews.length} đánh giá)
             </Typography>
+            <Divider orientation="vertical" flexItem />
             <Typography variant="body2" color="text.secondary">
-              • Mã SKU: <b>{product.sku}</b>
+              SKU: <b>{product.sku || 'N/A'}</b>
             </Typography>
           </Box>
 
-          <Box sx={{ p: 2.5, bgcolor: '#f1f5f9', borderRadius: 3, mb: 3 }}>
+          {/* Hộp Giá tiền phẳng, rõ ràng */}
+          <Box sx={{ p: 2.5, bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #e2e8f0', mb: 3 }}>
             {hasDiscount ? (
               <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
-                <Typography variant="h4" color="error.main" fontWeight="bold">
+                <Typography variant="h4" color="#dc2626" fontWeight={800}>
                   {formatVND(product.discountPrice!)}
                 </Typography>
-                <Typography variant="h6" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                <Typography variant="body1" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
                   {formatVND(product.price)}
                 </Typography>
               </Box>
             ) : (
-              <Typography variant="h4" color="primary.main" fontWeight="bold">
+              <Typography variant="h4" color="#0f172a" fontWeight={800}>
                 {formatVND(product.price)}
               </Typography>
             )}
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+              Đã bao gồm thuế VAT (10%) và bảo hành chính hãng
+            </Typography>
           </Box>
 
-          <Typography variant="body1" sx={{ whiteSpace: 'pre-line', lineHeight: 1.8, mb: 4, color: '#334155' }}>
+          {/* Dịch vụ cam kết */}
+          <Box sx={{ display: 'flex', gap: 3, mb: 3, p: 2, bgcolor: '#f8fafc', borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LocalShippingOutlined color="action" fontSize="small" />
+              <Typography variant="body2" color="text.secondary">Giao hàng miễn phí</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <VerifiedUserOutlined color="action" fontSize="small" />
+              <Typography variant="body2" color="text.secondary">Bảo hành 12 tháng</Typography>
+            </Box>
+          </Box>
+
+          <Typography variant="body2" sx={{ whiteSpace: 'pre-line', lineHeight: 1.8, mb: 4, color: '#334155' }}>
             {product.description}
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<ShoppingCart />}
-              sx={{ px: 4, py: 1.5, fontWeight: 'bold', borderRadius: 2 }}
-              onClick={() => alert(`Đã thêm "${product.name}" vào giỏ hàng!`)}
-            >
-              Thêm Vào Giỏ Hàng
-            </Button>
-          </Box>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<AddShoppingCartOutlined />}
+            sx={{ px: 4, py: 1.4, fontWeight: 700, borderRadius: 2 }}
+            onClick={() => alert(`Đã thêm "${product.name}" vào giỏ hàng!`)}
+          >
+            Thêm vào giỏ hàng
+          </Button>
         </Grid>
       </Grid>
 
       <Divider sx={{ my: 6 }} />
 
-      {/* Phần Đánh Giá & Nhận Xét */}
-      <Box sx={{ maxWidth: 900, mx: 'auto' }}>
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Đánh Giá & Nhận Xét ({reviews.length})
+      {/* Đánh giá & Nhận xét */}
+      <Box sx={{ maxWidth: 840 }}>
+        <Typography variant="h6" fontWeight={800} color="#0f172a" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <RateReviewOutlined color="primary" /> Đánh giá & Nhận xét ({reviews.length})
         </Typography>
 
-        {/* Form gửi review */}
         {isAuthenticated ? (
-          <Card sx={{ mb: 4, borderRadius: 3, boxShadow: 2 }}>
+          <Card sx={{ mb: 4, borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
             <CardContent sx={{ p: 3 }}>
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+              <Typography variant="subtitle2" fontWeight={700} gutterBottom>
                 Gửi nhận xét của bạn
               </Typography>
 
@@ -245,62 +279,63 @@ export const ProductDetailPage: React.FC = () => {
               {reviewError && <Alert severity="error" sx={{ mb: 2 }}>{reviewError}</Alert>}
 
               <Box component="form" onSubmit={handleSendReview}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <Typography variant="body2">Đánh giá của bạn:</Typography>
-                  <Rating
-                    value={rating}
-                    onChange={(_, val) => setRating(val)}
-                  />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                  <Typography variant="body2">Đánh giá sao:</Typography>
+                  <Rating value={rating} onChange={(_, val) => setRating(val)} size="small" />
                 </Box>
                 <TextField
                   fullWidth
                   multiline
                   rows={3}
-                  placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."
+                  placeholder="Chia sẻ cảm nhận chân thật của bạn về sản phẩm này..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   sx={{ mb: 2 }}
                 />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={submittingReview || !comment.trim()}
-                >
-                  {submittingReview ? 'Đang gửi...' : 'Gửi Nhận Xét'}
+                <Button type="submit" variant="contained" disabled={submittingReview || !comment.trim()}>
+                  {submittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
                 </Button>
               </Box>
             </CardContent>
           </Card>
         ) : (
-          <Alert severity="info" sx={{ mb: 4 }}>
-            Vui lòng <Link to="/login"><b>Đăng nhập</b></Link> để viết đánh giá cho sản phẩm này.
+          <Alert severity="info" sx={{ mb: 4, borderRadius: 2 }}>
+            Vui lòng <Link to="/login" style={{ fontWeight: 600, color: '#0284c7' }}>Đăng nhập</Link> để viết đánh giá cho sản phẩm này.
           </Alert>
         )}
 
-        {/* Danh sách reviews */}
+        {/* Danh sách bình luận */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {reviews.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên nhận xét!
+              Chưa có nhận xét nào cho sản phẩm này. Hãy là người đầu tiên đánh giá!
             </Typography>
           ) : (
             reviews.map((rev) => (
-              <Card key={rev.id} variant="outlined" sx={{ borderRadius: 2, p: 2 }}>
+              <Box
+                key={rev.id}
+                sx={{
+                  p: 2.5,
+                  bgcolor: '#ffffff',
+                  borderRadius: 2.5,
+                  border: '1px solid #e2e8f0',
+                }}
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-                  <Avatar src={rev.userAvatar} sx={{ width: 32, height: 32 }}>
+                  <Avatar src={rev.userAvatar} sx={{ width: 34, height: 34, bgcolor: '#e2e8f0', color: '#0f172a' }}>
                     {rev.fullName?.[0]}
                   </Avatar>
                   <Box>
-                    <Typography variant="subtitle2" fontWeight="bold">
+                    <Typography variant="subtitle2" fontWeight={700}>
                       {rev.fullName || rev.username}
                     </Typography>
                     <Rating value={rev.rating} size="small" readOnly />
                   </Box>
                 </Box>
-                <Typography variant="body2" sx={{ color: '#334155', mt: 1 }}>
+                <Typography variant="body2" sx={{ color: '#334155', mt: 1, pl: 6 }}>
                   {rev.comment}
                 </Typography>
-              </Card>
+              </Box>
             ))
           )}
         </Box>

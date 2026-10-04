@@ -11,7 +11,12 @@ import {
   IconButton,
   Link as MuiLink,
 } from '@mui/material';
-import { Visibility, VisibilityOff, LockOutlined } from '@mui/icons-material';
+import {
+  Visibility,
+  VisibilityOff,
+  LockOutlined,
+  InfoOutlined,
+} from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
@@ -58,38 +63,39 @@ export const LoginPage: React.FC = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: '80vh',
+        minHeight: '75vh',
         px: 2,
+        py: 4,
       }}
     >
-      <Card sx={{ maxWidth: 450, width: '100%', boxShadow: 4, borderRadius: 3 }}>
+      <Card sx={{ maxWidth: 420, width: '100%', borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Box
               sx={{
-                width: 50,
-                height: 50,
-                bgcolor: 'primary.main',
-                color: 'white',
+                width: 44,
+                height: 44,
+                bgcolor: '#f0f9ff',
+                color: 'primary.main',
                 borderRadius: '50%',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                mb: 1,
+                mb: 1.5,
               }}
             >
-              <LockOutlined />
+              <LockOutlined fontSize="small" />
             </Box>
-            <Typography variant="h5" fontWeight="bold">
+            <Typography variant="h5" fontWeight={800} color="#0f172a">
               Đăng Nhập
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Đăng nhập tài khoản CyberTech Store
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Truy cập tài khoản CyberTech Store
             </Typography>
           </Box>
 
           {errorMessage && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
               {errorMessage}
             </Alert>
           )}
@@ -123,8 +129,9 @@ export const LoginPage: React.FC = () => {
                     <IconButton
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      size="small"
                     >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -137,15 +144,15 @@ export const LoginPage: React.FC = () => {
               variant="contained"
               size="large"
               disabled={loading}
-              sx={{ mt: 3, mb: 2, py: 1.2, fontWeight: 'bold' }}
+              sx={{ mt: 3, mb: 2, py: 1.2, fontWeight: 700 }}
             >
               {loading ? 'Đang xử lý...' : 'Đăng Nhập'}
             </Button>
 
             <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Typography variant="body2">
+              <Typography variant="body2" color="text.secondary">
                 Chưa có tài khoản?{' '}
-                <MuiLink component={Link} to="/register" fontWeight="bold">
+                <MuiLink component={Link} to="/register" fontWeight={600} color="primary.main">
                   Đăng ký ngay
                 </MuiLink>
               </Typography>
@@ -154,20 +161,20 @@ export const LoginPage: React.FC = () => {
             <Box
               sx={{
                 mt: 3,
-                p: 1.5,
-                bgcolor: 'grey.100',
+                p: 2,
+                bgcolor: '#f8fafc',
+                border: '1px solid #e2e8f0',
                 borderRadius: 2,
-                fontSize: '0.85rem',
               }}
             >
-              <Typography variant="caption" display="block" color="text.secondary">
-                💡 <b>Tài khoản mẫu:</b>
+              <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 700, color: '#334155', mb: 0.5 }}>
+                <InfoOutlined fontSize="inherit" color="primary" /> Tài khoản kiểm thử có sẵn:
               </Typography>
-              <Typography variant="caption" display="block">
+              <Typography variant="caption" display="block" color="#475569">
                 • Admin: <code>admin</code> / <code>123456</code>
               </Typography>
-              <Typography variant="caption" display="block">
-                • Customer: <code>customer</code> / <code>123456</code>
+              <Typography variant="caption" display="block" color="#475569">
+                • Khách hàng: <code>customer</code> / <code>123456</code>
               </Typography>
             </Box>
           </Box>
