@@ -200,12 +200,9 @@ export const AdminProductListPage: React.FC = () => {
                         aspectRatio: '1 / 1',
                         borderRadius: 2,
                         border: '1px solid #e2e8f0',
-                        bgcolor: '#f8fafc',
+                        bgcolor: '#f1f5f9',
                         overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        p: 0.5,
+                        display: 'block',
                       }}
                     >
                       <Box
@@ -215,8 +212,9 @@ export const AdminProductListPage: React.FC = () => {
                         sx={{
                           width: '100%',
                           height: '100%',
-                          objectFit: 'contain',
-                          borderRadius: 1.5,
+                          objectFit: 'cover',
+                          borderRadius: 2,
+                          display: 'block',
                         }}
                       />
                     </Box>

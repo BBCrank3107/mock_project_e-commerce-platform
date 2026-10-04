@@ -135,12 +135,9 @@ export const ProductDetailPage: React.FC = () => {
               aspectRatio: '1 / 1',
               borderRadius: 3,
               overflow: 'hidden',
-              bgcolor: '#ffffff',
+              bgcolor: '#f1f5f9',
               border: '1px solid #e2e8f0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              p: { xs: 2, sm: 3 },
+              display: 'block',
             }}
           >
             <Box
@@ -150,8 +147,10 @@ export const ProductDetailPage: React.FC = () => {
               sx={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'contain',
-                borderRadius: 2,
+                objectFit: 'cover',
+                objectPosition: 'center',
+                borderRadius: 3,
+                display: 'block',
               }}
             />
           </Box>
@@ -169,11 +168,10 @@ export const ProductDetailPage: React.FC = () => {
                   height: 72,
                   minWidth: 72,
                   aspectRatio: '1 / 1',
-                  objectFit: 'contain',
+                  objectFit: 'cover',
                   borderRadius: 2,
-                  p: 0.5,
                   cursor: 'pointer',
-                  bgcolor: '#ffffff',
+                  bgcolor: '#f1f5f9',
                   border: activeImage === product.thumbnailUrl ? '2px solid #0284c7' : '1px solid #e2e8f0',
                 }}
               />
@@ -189,11 +187,10 @@ export const ProductDetailPage: React.FC = () => {
                     height: 72,
                     minWidth: 72,
                     aspectRatio: '1 / 1',
-                    objectFit: 'contain',
+                    objectFit: 'cover',
                     borderRadius: 2,
-                    p: 0.5,
                     cursor: 'pointer',
-                    bgcolor: '#ffffff',
+                    bgcolor: '#f1f5f9',
                     border: activeImage === url ? '2px solid #0284c7' : '1px solid #e2e8f0',
                   }}
                 />

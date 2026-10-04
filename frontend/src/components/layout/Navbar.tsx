@@ -49,9 +49,9 @@ export const Navbar: React.FC = () => {
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: '#ffffff',
-        borderBottom: '1px solid #e2e8f0',
-        color: '#0f172a',
+        bgcolor: '#0a0a0a',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+        color: '#ffffff',
         zIndex: 1100,
       }}
     >
@@ -88,7 +88,7 @@ export const Navbar: React.FC = () => {
                 sx={{
                   fontWeight: 800,
                   letterSpacing: '-0.5px',
-                  color: '#0f172a',
+                  color: '#ffffff',
                   lineHeight: 1.1,
                 }}
               >
@@ -97,7 +97,7 @@ export const Navbar: React.FC = () => {
               <Typography
                 variant="caption"
                 sx={{
-                  color: '#64748b',
+                  color: '#94a3b8',
                   fontSize: '0.7rem',
                   fontWeight: 500,
                   display: 'block',
@@ -114,11 +114,11 @@ export const Navbar: React.FC = () => {
               component={Link}
               to="/"
               sx={{
-                color: '#334155',
+                color: '#ffffff',
                 fontWeight: 600,
                 fontSize: '0.95rem',
                 px: 2,
-                '&:hover': { bgcolor: '#f1f5f9' },
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
               }}
             >
               Sản phẩm
@@ -132,14 +132,14 @@ export const Navbar: React.FC = () => {
                 variant="outlined"
                 size="small"
                 sx={{
-                  borderColor: '#cbd5e1',
-                  color: '#0f172a',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  color: '#ffffff',
                   fontWeight: 600,
                   borderRadius: 2,
                   px: 1.8,
                   '&:hover': {
-                    borderColor: 'primary.main',
-                    bgcolor: '#f0f9ff',
+                    borderColor: '#ffffff',
+                    bgcolor: 'rgba(255, 255, 255, 0.1)',
                   },
                 }}
               >
@@ -152,11 +152,11 @@ export const Navbar: React.FC = () => {
               component={Link}
               to="/cart"
               sx={{
-                color: '#334155',
-                border: '1px solid #e2e8f0',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: 2,
                 p: 1,
-                '&:hover': { bgcolor: '#f1f5f9' },
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
               }}
             >
               <Badge badgeContent={2} color="error">
@@ -176,20 +176,21 @@ export const Navbar: React.FC = () => {
                     textTransform: 'none',
                     p: 0.5,
                     pr: 1.5,
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: 2,
-                    '&:hover': { bgcolor: '#f1f5f9' },
+                    color: '#ffffff',
+                    '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
                   }}
                 >
                   <Avatar
                     alt={user?.fullName}
                     src={user?.avatarUrl}
-                    sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
+                    sx={{ width: 32, height: 32, bgcolor: 'primary.main', color: '#ffffff' }}
                   >
                     {user?.fullName?.charAt(0) || <PersonOutline fontSize="small" />}
                   </Avatar>
                   <Box sx={{ textAlign: 'left', display: { xs: 'none', sm: 'block' } }}>
-                    <Typography variant="body2" fontWeight={600} color="#0f172a" noWrap>
+                    <Typography variant="body2" fontWeight={600} color="#ffffff" noWrap>
                       {user?.fullName}
                     </Typography>
                   </Box>
@@ -204,7 +205,7 @@ export const Navbar: React.FC = () => {
                       mt: 1,
                       minWidth: 220,
                       borderRadius: 3,
-                      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                      boxShadow: '0 10px 25px -3px rgba(0,0,0,0.3)',
                       border: '1px solid #e2e8f0',
                     },
                   }}
@@ -255,11 +256,15 @@ export const Navbar: React.FC = () => {
                   variant="outlined"
                   size="small"
                   sx={{
-                    borderColor: '#cbd5e1',
-                    color: '#0f172a',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    color: '#ffffff',
                     fontWeight: 600,
                     borderRadius: 2,
                     px: 2,
+                    '&:hover': {
+                      borderColor: '#ffffff',
+                      bgcolor: 'rgba(255, 255, 255, 0.1)',
+                    },
                   }}
                 >
                   Đăng nhập
@@ -273,6 +278,8 @@ export const Navbar: React.FC = () => {
                     fontWeight: 600,
                     borderRadius: 2,
                     px: 2,
+                    bgcolor: 'primary.main',
+                    color: '#ffffff',
                   }}
                 >
                   Đăng ký
