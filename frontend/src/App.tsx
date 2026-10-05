@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
+import { CartProvider } from './features/cart_checkout/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
@@ -95,6 +96,7 @@ export const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
+        <CartProvider>
         <BrowserRouter>
           <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
             <Navbar />
@@ -104,6 +106,7 @@ export const App: React.FC = () => {
             <Footer />
           </Box>
         </BrowserRouter>
+        </CartProvider>
       </AuthProvider>
     </ThemeProvider>
   );
