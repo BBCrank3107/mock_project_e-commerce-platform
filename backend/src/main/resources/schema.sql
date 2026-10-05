@@ -319,6 +319,7 @@ INSERT INTO inventory (product_id, stock_quantity, low_stock_threshold) VALUES
 -- 8. Promotions (Voucher giảm giá cho đơn hàng)
 INSERT INTO promotions (code, description, discount_percent, max_discount_amount, min_order_amount, valid_from, valid_to, is_active) VALUES
 ('WELCOME10', 'Giảm 10% cho khách hàng mới gia nhập CyberTech', 10, 500000, 1000000, CURRENT_TIMESTAMP - INTERVAL '5 days', CURRENT_TIMESTAMP + INTERVAL '30 days', TRUE),
+('MOCKPROJECT', 'Giảm 20% cho dự án thực hành', 20, 1000000, 500000, CURRENT_TIMESTAMP - INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '7 days', TRUE),
 ('CYBERTECH20', 'Ưu đãi Lễ hội Công nghệ giảm sốc 20%', 20, 1500000, 5000000, CURRENT_TIMESTAMP - INTERVAL '2 days', CURRENT_TIMESTAMP + INTERVAL '15 days', TRUE),
 ('FREESHIP', 'Mã trợ giá vận chuyển toàn quốc giảm 5%', 5, 200000, 500000, CURRENT_TIMESTAMP - INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '60 days', TRUE);
 
@@ -368,3 +369,7 @@ INSERT INTO payments (order_id, payment_method, payment_status, transaction_code
 
 INSERT INTO shipping_info (order_id, recipient_name, phone_number, shipping_address, city, tracking_code, shipping_status) VALUES
 (2, 'Trần Hoàng Nam', '0909888999', 'Số 45 Đường Cầu Giấy, Phường Quan Hoa, Quận Cầu Giấy', 'Hà Nội', 'VTP-334455', 'PREPARING');
+
+-- Explicit seed IDs must not collide with the next generated cart/order IDs.
+SELECT setval(pg_get_serial_sequence('carts', 'id'), (SELECT MAX(id) FROM carts));
+SELECT setval(pg_get_serial_sequence('orders', 'id'), (SELECT MAX(id) FROM orders));
