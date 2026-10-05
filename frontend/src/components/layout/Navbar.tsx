@@ -150,6 +150,7 @@ export const Navbar: React.FC = () => {
             )}
 
             {isAuthenticated && <Button component={Link} to="/orders" sx={{ color: '#ffffff' }}>Đơn của tôi</Button>}
+            {isAdmin && <Button component={Link} to="/admin/orders" sx={{ color: '#ffffff' }}>Quản lý đơn hàng</Button>}
             {/* Shopping Cart Button */}
             <IconButton
               component={Link}
