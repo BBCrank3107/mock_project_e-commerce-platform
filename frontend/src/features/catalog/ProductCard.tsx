@@ -1,3 +1,4 @@
+import { AddToCartButton } from '../cart_checkout/AddToCartButton';
 import React from 'react';
 import {
   Card,
@@ -5,9 +6,7 @@ import {
   Typography,
   Box,
   Chip,
-  Button,
 } from '@mui/material';
-import { AddShoppingCartOutlined } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import type { Product } from './types';
 
@@ -144,26 +143,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </Box>
 
-        <Button
-          fullWidth
-          variant="outlined"
-          size="small"
-          startIcon={<AddShoppingCartOutlined fontSize="small" />}
-          sx={{
-            borderRadius: 2,
-            borderColor: '#cbd5e1',
-            color: '#0f172a',
-            fontWeight: 600,
-            py: 0.8,
-            '&:hover': {
-              borderColor: 'primary.main',
-              bgcolor: '#f0f9ff',
-            },
-          }}
-          onClick={() => alert(`Đã thêm "${product.name}" vào giỏ hàng!`)}
-        >
-          Thêm vào giỏ
-        </Button>
+        <AddToCartButton productId={product.id} />
       </CardContent>
     </Card>
   );

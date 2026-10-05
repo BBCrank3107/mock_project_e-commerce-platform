@@ -1,3 +1,4 @@
+import { AddToCartButton } from '../cart_checkout/AddToCartButton';
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -17,7 +18,6 @@ import {
   Breadcrumbs,
 } from '@mui/material';
 import {
-  AddShoppingCartOutlined,
   ArrowBackIosNewOutlined,
   NavigateNext,
   LocalShippingOutlined,
@@ -254,15 +254,7 @@ export const ProductDetailPage: React.FC = () => {
             {product.description}
           </Typography>
 
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<AddShoppingCartOutlined />}
-            sx={{ px: 4, py: 1.4, fontWeight: 700, borderRadius: 2 }}
-            onClick={() => alert(`Đã thêm "${product.name}" vào giỏ hàng!`)}
-          >
-            Thêm vào giỏ hàng
-          </Button>
+          <AddToCartButton productId={product.id} />
         </Grid>
       </Grid>
 
