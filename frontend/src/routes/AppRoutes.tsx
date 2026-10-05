@@ -1,4 +1,5 @@
 import { CartPage } from '../features/cart_checkout/CartPage';
+import { AdminOrderListPage } from '../features/admin_orders/AdminOrderListPage';
 import { CheckoutPage } from '../features/cart_checkout/CheckoutPage';
 import { MyOrdersPage } from '../features/cart_checkout/MyOrdersPage';
 import { OrderSuccessPage } from '../features/cart_checkout/OrderSuccessPage';
@@ -30,6 +31,7 @@ export const AppRoutes: React.FC = () => {
       <Route path="/checkout" element={<RequireAccount><CheckoutPage /></RequireAccount>} />
       <Route path="/orders" element={<RequireAccount><MyOrdersPage /></RequireAccount>} />
       <Route path="/orders/:id/success" element={<RequireAccount><OrderSuccessPage /></RequireAccount>} />
+      <Route path="/admin/orders" element={<RequireAccount admin><AdminOrderListPage /></RequireAccount>} />
 
       {/* 404 Not Found */}
       <Route
