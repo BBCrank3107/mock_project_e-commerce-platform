@@ -8,6 +8,7 @@ import {
   Button,
   Box,
   Typography,
+  Alert,
 } from '@mui/material';
 import { WarningAmber } from '@mui/icons-material';
 
@@ -21,6 +22,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
   loading?: boolean;
+  error?: string;
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -33,6 +35,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   onCancel,
   loading = false,
+  error,
 }) => {
   return (
     <Dialog
@@ -59,15 +62,18 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         >
           <WarningAmber />
         </Box>
-        <Typography variant="h6" fontWeight="bold">
+        <Typography component="span" variant="h6" fontWeight="bold">
           {title}
         </Typography>
       </DialogTitle>
 
       <DialogContent sx={{ py: 1.5 }}>
-        <DialogContentText color="text.primary">
-          {message}
-        </DialogContentText>
+        <DialogContentText color="text.primary">{message}</DialogContentText>
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, pt: 1, gap: 1 }}>

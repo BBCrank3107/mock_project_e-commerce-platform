@@ -1,29 +1,13 @@
-import { AddToCartButton } from '../cart_checkout/AddToCartButton';
-import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Chip,
-} from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
+import { Link, useLocation } from 'react-router-dom';
 import type { Product } from './types';
-
-interface ProductCardProps {
-  product: Product;
-}
-
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const formatVND = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-  };
-
-  const hasDiscount = product.discountPrice && product.discountPrice < product.price;
-  const discountPercent = hasDiscount
-    ? Math.round(((product.price - product.discountPrice!) / product.price) * 100)
-    : 0;
-
+import { AddToCartButton } from '../cart_checkout/AddToCartButton';
+import { money } from '../cart_checkout/transactionApi';
+import { ProductImage } from '../../components/common/ProductImage';
+export function ProductCard({ product }: { product: Product }) {
+  const location = useLocation();
+  const catalogState = { catalog: `${location.pathname}${location.search}#collection` };
+  const discounted = product.discountPrice != null && product.discountPrice < product.price;
   return (
     <Card
       sx={{
@@ -31,120 +15,91 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 2.5,
-        border: '1px solid #e2e8f0',
-        bgcolor: '#ffffff',
-        boxShadow: 'none',
-        transition: 'all 0.2s ease-in-out',
-        position: 'relative',
-        '&:hover': {
-          borderColor: '#94a3b8',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-        },
+        overflow: 'hidden',
+        transition: 'transform 180ms, box-shadow 180ms',
+        '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 14px 32px #263c3010' },
       }}
     >
-      {/* Badge giảm giá */}
-      {hasDiscount && (
-        <Chip
-          label={`-${discountPercent}%`}
-          size="small"
-          sx={{
-            position: 'absolute',
-            top: 10,
-            left: 10,
-            bgcolor: '#dc2626',
-            color: '#ffffff',
-            fontWeight: 700,
-            fontSize: '0.75rem',
-            height: 22,
-            zIndex: 1,
-          }}
-        />
-      )}
-
-      {/* Ảnh sản phẩm chuẩn 1:1 vuông đồng nhất, lấp đầy, bo góc */}
       <Box
         component={Link}
         to={`/products/${product.id}`}
+        state={catalogState}
         sx={{
-          position: 'relative',
-          width: '100%',
-          aspectRatio: '1 / 1',
-          bgcolor: '#f1f5f9',
-          borderRadius: '10px 10px 0 0',
-          overflow: 'hidden',
+          aspectRatio: '1',
           display: 'block',
+          position: 'relative',
+          bgcolor: '#eef0e9',
+          overflow: 'hidden',
         }}
       >
-        <Box
-          component="img"
-          src={product.thumbnailUrl || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=500'}
+        <ProductImage
+          src={product.thumbnailUrl}
           alt={product.name}
-          sx={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center',
-            display: 'block',
-            transition: 'transform 0.35s ease',
-            '&:hover': {
-              transform: 'scale(1.06)',
-            },
-          }}
+          sx={{ transition: 'transform 400ms', '&:hover': { transform: 'scale(1.04)' } }}
         />
+        {discounted && (
+          <Chip
+            size="small"
+            label={`−${Math.round((1 - product.discountPrice! / product.price) * 100)}%`}
+            sx={{ position: 'absolute', top: 12, left: 12, bgcolor: '#fff', color: 'primary.main' }}
+          />
+        )}
       </Box>
-
-      {/* Nội dung sản phẩm */}
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 2 }}>
-        <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+      <CardContent
+        sx={{
+          p: { xs: 1.5, sm: 2.5 },
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          '&:last-child': { pb: { xs: 1.5, sm: 2.5 } },
+        }}
+      >
+        <Typography
+          variant="overline"
+          color="text.secondary"
+          sx={{ fontSize: { xs: 8, sm: 9 }, mb: 0.75 }}
+        >
           {product.subcategoryName || product.categoryName}
         </Typography>
-
         <Typography
           component={Link}
           to={`/products/${product.id}`}
-          variant="body1"
-          fontWeight={600}
+          state={catalogState}
           sx={{
-            mt: 0.5,
-            mb: 1.5,
-            textDecoration: 'none',
-            color: '#0f172a',
+            fontSize: { xs: 12, sm: 14 },
+            fontWeight: 500,
+            lineHeight: 1.6,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            minHeight: 44,
-            lineHeight: 1.4,
-            fontSize: '0.925rem',
+            minHeight: { xs: 39, sm: 45 },
             '&:hover': { color: 'primary.main' },
           }}
         >
           {product.name}
         </Typography>
-
-        <Box sx={{ mt: 'auto', mb: 2 }}>
-          {hasDiscount ? (
-            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-              <Typography variant="h6" color="#dc2626" fontWeight={700} sx={{ fontSize: '1.1rem' }}>
-                {formatVND(product.discountPrice!)}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ textDecoration: 'line-through', fontSize: '0.85rem' }}
-              >
-                {formatVND(product.price)}
-              </Typography>
-            </Box>
-          ) : (
-            <Typography variant="h6" color="#0f172a" fontWeight={700} sx={{ fontSize: '1.1rem' }}>
-              {formatVND(product.price)}
-            </Typography>
-          )}
+        <Box sx={{ mt: 'auto', pt: 2, pb: 2 }}>
+          <Typography
+            sx={{ fontWeight: 600, fontSize: { xs: 14, sm: 17 }, letterSpacing: '-0.03em' }}
+          >
+            {money(discounted ? product.discountPrice! : product.price)}
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              textDecoration: 'line-through',
+              color: 'text.secondary',
+              minHeight: 20,
+              display: 'block',
+              visibility: discounted ? 'visible' : 'hidden',
+            }}
+          >
+            {money(product.price)}
+          </Typography>
         </Box>
-
-        <AddToCartButton productId={product.id} />
+        <AddToCartButton productId={product.id} compact />
       </CardContent>
     </Card>
   );
-};
+}

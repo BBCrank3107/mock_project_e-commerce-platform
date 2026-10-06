@@ -3,46 +3,88 @@ import type { ReactNode } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { transactionApi, errorMessage } from './transactionApi';
 import type { Cart } from './types';
-
 interface CartState {
-  cart: Cart | null; loading: boolean; busy: boolean; error: string;
+  cart: Cart | null;
+  loading: boolean;
+  busy: boolean;
+  error: string;
   refresh: () => Promise<void>;
-  add: (productId: number) => Promise<void>;
+  add: (productId: number, quantity?: number) => Promise<void>;
   update: (id: number, quantity: number) => Promise<void>;
   remove: (id: number) => Promise<void>;
 }
 const Context = createContext<CartState | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const userId = user?.id;
   const [cart, setCart] = useState<Cart | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!userId);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const generation = useRef(0);
+  const revision = useRef(0);
+  const pending = useRef(false);
   const refresh = useCallback(async () => {
-    if (!user) return;
-    const current = generation.current;
-    setLoading(true); setError('');
-    try { const data = await transactionApi.cart(); if (current === generation.current) setCart(data); }
-    catch (err) { if (current === generation.current) setError(errorMessage(err)); }
-    finally { if (current === generation.current) setLoading(false); }
-  }, [user?.id]);
+    if (!userId || pending.current) return;
+    const request = ++revision.current;
+    setLoading(true);
+    setError('');
+    try {
+      const data = await transactionApi.cart();
+      if (request === revision.current) setCart(data);
+    } catch (err) {
+      if (request === revision.current) setError(errorMessage(err));
+    } finally {
+      if (request === revision.current) setLoading(false);
+    }
+  }, [userId]);
   useEffect(() => {
-    generation.current++; setCart(null); setError(''); setLoading(false); setBusy(false);
+    revision.current++;
+    pending.current = false;
+    setCart(null);
+    setError('');
+    setBusy(false);
+    setLoading(!!userId);
     void refresh();
-    return () => { generation.current++; };
-  }, [refresh]);
+    return () => {
+      revision.current++;
+    };
+  }, [refresh, userId]);
   const mutate = async (operation: () => Promise<Cart>) => {
-    const current = generation.current; setBusy(true); setError('');
-    try { const data = await operation(); if (current === generation.current) setCart(data); }
-    catch (err) { if (current === generation.current) setError(errorMessage(err)); throw err; }
-    finally { if (current === generation.current) setBusy(false); }
+    if (pending.current) throw new Error('Đang cập nhật giỏ hàng');
+    const request = ++revision.current;
+    pending.current = true;
+    setBusy(true);
+    setLoading(false);
+    setError('');
+    try {
+      const data = await operation();
+      if (request === revision.current) setCart(data);
+    } catch (err) {
+      if (request === revision.current) setError(errorMessage(err));
+      throw err;
+    } finally {
+      if (request === revision.current) {
+        pending.current = false;
+        setBusy(false);
+      }
+    }
   };
-  return <Context.Provider value={{ cart, loading, busy, error, refresh,
-    add: id => mutate(() => transactionApi.add(id)),
-    update: (id, quantity) => mutate(() => transactionApi.update(id, quantity)),
-    remove: id => mutate(() => transactionApi.remove(id)),
-  }}>{children}</Context.Provider>;
+  return (
+    <Context.Provider
+      value={{
+        cart,
+        loading,
+        busy,
+        error,
+        refresh,
+        add: (id, quantity = 1) => mutate(() => transactionApi.add(id, quantity)),
+        update: (id, quantity) => mutate(() => transactionApi.update(id, quantity)),
+        remove: (id) => mutate(() => transactionApi.remove(id)),
+      }}
+    >
+      {children}
+    </Context.Provider>
+  );
 }
 export function useCart() {
   const value = useContext(Context);

@@ -2,30 +2,53 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
-
-html,
+html {
+  scroll-padding-top: 110px;
+}
 body {
-  width: 100%;
-  min-height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f8fafc;
-  color: #1e293b;
-  line-height: 1.5;
+  margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 #root {
-  width: 100%;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
 }
-
 a {
   color: inherit;
   text-decoration: none;
+}
+img {
+  max-width: 100%;
+}
+::selection {
+  background: #dbe6d9;
+  color: #202923;
+}
+:focus-visible {
+  outline: 2px solid #637d62;
+  outline-offset: 4px;
+}
+.skip-link {
+  position: fixed;
+  top: -70px;
+  left: 16px;
+  z-index: 1500;
+  padding: 12px 20px;
+  background: #fff;
+  border: 1px solid #334d40;
+  border-radius: 8px;
+}
+.skip-link:focus {
+  top: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
