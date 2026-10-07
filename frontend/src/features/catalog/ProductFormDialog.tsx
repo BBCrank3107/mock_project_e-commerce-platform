@@ -22,9 +22,13 @@ import type { Product, Category } from './types';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Tên sản phẩm không được để trống').min(3, 'Tối thiểu 3 ký tự'),
-  subcategoryId: z.number({ invalid_type_error: 'Vui lòng chọn danh mục con' }).min(1, 'Vui lòng chọn danh mục con'),
+  subcategoryId: z
+    .number({ invalid_type_error: 'Vui lòng chọn danh mục con' })
+    .min(1, 'Vui lòng chọn danh mục con'),
   sku: z.string().optional(),
-  price: z.number({ invalid_type_error: 'Giá phải là số hợp lệ' }).min(1000, 'Giá tối thiểu 1.000 VNĐ'),
+  price: z
+    .number({ invalid_type_error: 'Giá phải là số hợp lệ' })
+    .min(1000, 'Giá tối thiểu 1.000 VNĐ'),
   discountPrice: z.number().optional().nullable(),
   description: z.string().optional(),
   thumbnailUrl: z.string().optional(),
@@ -59,6 +63,7 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -93,9 +98,20 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
     setErrorMessage(null);
   }, [product, open, reset]);
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
+        setErrorMessage('Vui lòng chọn ảnh có dung lượng tối đa 10 MB.');
+        return;
+      }
+      setErrorMessage(null);
       setSelectedFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
@@ -128,9 +144,17 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
-        <Typography variant="h6" fontWeight="bold">
+    <Dialog
+      open={open}
+      onClose={loading ? undefined : onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 3 } }}
+    >
+      <DialogTitle
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}
+      >
+        <Typography component="span" variant="h6" fontWeight="bold">
           {isEditing ? 'Cập Nhật Sản Phẩm' : 'Thêm Mới Sản Phẩm'}
         </Typography>
         <IconButton onClick={onClose} disabled={loading} size="small">
@@ -140,7 +164,11 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
         <DialogContent dividers sx={{ py: 3 }}>
-          {errorMessage && <Alert severity="error" sx={{ mb: 3 }}>{errorMessage}</Alert>}
+          {errorMessage && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {errorMessage}
+            </Alert>
+          )}
 
           <Grid container spacing={3}>
             <Grid item xs={12} sm={8}>
@@ -171,8 +199,10 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
                 fullWidth
                 label="Danh mục con *"
                 defaultValue=""
-                value={product ? product.subcategoryId : undefined}
-                onChange={(e) => setValue('subcategoryId', Number(e.target.value), { shouldValidate: true })}
+                value={watch('subcategoryId') || ''}
+                onChange={(e) =>
+                  setValue('subcategoryId', Number(e.target.value), { shouldValidate: true })
+                }
                 error={!!errors.subcategoryId}
                 helperText={errors.subcategoryId?.message}
                 margin="dense"
@@ -216,9 +246,9 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
             {/* Upload File Ảnh */}
             <Grid item xs={12}>
               <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                Ảnh Sản Phẩm (File Upload Feature)
+                Ảnh sản phẩm
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: 1, flexWrap: 'wrap' }}>
                 <Button
                   component="label"
                   variant="outlined"
@@ -226,12 +256,7 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
                   sx={{ borderRadius: 2 }}
                 >
                   Chọn Tệp Ảnh
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
+                  <input type="file" hidden accept="image/*" onChange={handleFileChange} />
                 </Button>
                 {selectedFile && (
                   <Typography variant="body2" color="text.secondary">

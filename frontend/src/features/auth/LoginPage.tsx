@@ -1,3 +1,5 @@
+import { AuthLayout } from './AuthLayout';
+import { safeReturnPath } from './returnPath';
 import React, { useState } from 'react';
 import {
   Box,
@@ -11,15 +13,10 @@ import {
   IconButton,
   Link as MuiLink,
 } from '@mui/material';
-import {
-  Visibility,
-  VisibilityOff,
-  LockOutlined,
-  InfoOutlined,
-} from '@mui/icons-material';
+import { Visibility, VisibilityOff, LockOutlined } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { loginSchema } from './authSchema';
 import type { LoginSchemaType } from './authSchema';
 import { useAuth } from '../../context/AuthContext';
@@ -31,6 +28,7 @@ export const LoginPage: React.FC = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Yêu cầu: Validation on blur
   const {
@@ -47,10 +45,11 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       await login(data as any);
-      navigate('/');
+      navigate(safeReturnPath(location.state), { replace: true });
     } catch (err: any) {
       const msg =
-        err.response?.data?.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại tài khoản!';
+        err.response?.data?.message ||
+        'Đăng nhập không thành công. Vui lòng kiểm tra lại tài khoản!';
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -58,17 +57,10 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '75vh',
-        px: 2,
-        py: 4,
-      }}
-    >
-      <Card sx={{ maxWidth: 420, width: '100%', borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+    <AuthLayout>
+      <Card
+        sx={{ maxWidth: 420, width: '100%', borderRadius: 3, border: 'none', boxShadow: 'none' }}
+      >
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Box
@@ -87,10 +79,10 @@ export const LoginPage: React.FC = () => {
               <LockOutlined fontSize="small" />
             </Box>
             <Typography variant="h5" fontWeight={800} color="#0f172a">
-              Đăng Nhập
+              Đăng nhập
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Truy cập tài khoản CyberTech Store
+              Chào mừng bạn trở lại CyberTech.
             </Typography>
           </Box>
 
@@ -127,11 +119,16 @@ export const LoginPage: React.FC = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
+                      aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
                       size="small"
                     >
-                      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      {showPassword ? (
+                        <VisibilityOff fontSize="small" />
+                      ) : (
+                        <Visibility fontSize="small" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -146,40 +143,26 @@ export const LoginPage: React.FC = () => {
               disabled={loading}
               sx={{ mt: 3, mb: 2, py: 1.2, fontWeight: 700 }}
             >
-              {loading ? 'Đang xử lý...' : 'Đăng Nhập'}
+              {loading ? 'Đang xử lý...' : 'Đăng nhập'}
             </Button>
 
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography variant="body2" color="text.secondary">
                 Chưa có tài khoản?{' '}
-                <MuiLink component={Link} to="/register" fontWeight={600} color="primary.main">
+                <MuiLink
+                  component={Link}
+                  to="/register"
+                  state={location.state}
+                  fontWeight={600}
+                  color="primary.main"
+                >
                   Đăng ký ngay
                 </MuiLink>
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                mt: 3,
-                p: 2,
-                bgcolor: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                borderRadius: 2,
-              }}
-            >
-              <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 700, color: '#334155', mb: 0.5 }}>
-                <InfoOutlined fontSize="inherit" color="primary" /> Tài khoản kiểm thử có sẵn:
-              </Typography>
-              <Typography variant="caption" display="block" color="#475569">
-                • Admin: <code>admin</code> / <code>123456</code>
-              </Typography>
-              <Typography variant="caption" display="block" color="#475569">
-                • Khách hàng: <code>customer</code> / <code>123456</code>
               </Typography>
             </Box>
           </Box>
         </CardContent>
       </Card>
-    </Box>
+    </AuthLayout>
   );
 };

@@ -1,3 +1,5 @@
+import { AuthLayout } from './AuthLayout';
+import { safeReturnPath } from './returnPath';
 import React, { useState } from 'react';
 import {
   Box,
@@ -14,7 +16,7 @@ import {
 import { Visibility, VisibilityOff, PersonAddOutlined } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { registerSchema } from './authSchema';
 import type { RegisterSchemaType } from './authSchema';
 import { useAuth } from '../../context/AuthContext';
@@ -26,6 +28,7 @@ export const RegisterPage: React.FC = () => {
 
   const { register: authRegister } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Yêu cầu: Validation on blur
   const {
@@ -42,7 +45,7 @@ export const RegisterPage: React.FC = () => {
     setLoading(true);
     try {
       await authRegister(data as any);
-      navigate('/');
+      navigate(safeReturnPath(location.state), { replace: true });
     } catch (err: any) {
       const msg =
         err.response?.data?.message || 'Đăng ký không thành công. Vui lòng kiểm tra lại thông tin!';
@@ -53,17 +56,8 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '85vh',
-        px: 2,
-        py: 4,
-      }}
-    >
-      <Card sx={{ maxWidth: 500, width: '100%', boxShadow: 4, borderRadius: 3 }}>
+    <AuthLayout>
+      <Card sx={{ maxWidth: 500, width: '100%', boxShadow: 'none', borderRadius: 3 }}>
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Box
@@ -82,10 +76,10 @@ export const RegisterPage: React.FC = () => {
               <PersonAddOutlined />
             </Box>
             <Typography variant="h5" fontWeight="bold">
-              Đăng Ký Tài Khoản
+              Tạo tài khoản
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Gia nhập CyberTech Store ngay hôm nay
+              Bắt đầu trải nghiệm mua sắm của riêng bạn.
             </Typography>
           </Box>
 
@@ -150,6 +144,7 @@ export const RegisterPage: React.FC = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
+                      aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
                     >
@@ -185,7 +180,7 @@ export const RegisterPage: React.FC = () => {
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography variant="body2">
                 Đã có tài khoản?{' '}
-                <MuiLink component={Link} to="/login" fontWeight="bold">
+                <MuiLink component={Link} to="/login" state={location.state} fontWeight="bold">
                   Đăng nhập ngay
                 </MuiLink>
               </Typography>
@@ -193,6 +188,6 @@ export const RegisterPage: React.FC = () => {
           </Box>
         </CardContent>
       </Card>
-    </Box>
+    </AuthLayout>
   );
 };

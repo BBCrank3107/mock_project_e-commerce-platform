@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { errorMessage } from '../cart_checkout/transactionApi';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Container,
+  Alert,
   Box,
   Typography,
   Button,
@@ -18,13 +21,7 @@ import {
   CircularProgress,
   InputAdornment,
 } from '@mui/material';
-import {
-  Add,
-  Edit,
-  Delete,
-  Search,
-  ArrowBack,
-} from '@mui/icons-material';
+import { Add, Edit, Delete, Search, ArrowBack } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { catalogApi } from './catalogApi';
 import type { Product, Category } from './types';
@@ -35,9 +32,12 @@ export const AdminProductListPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const requestRevision = useRef(0);
 
   // Search & Pagination
   const [keyword, setKeyword] = useState('');
+  const debouncedKeyword = useDebouncedValue(keyword);
+  const [error, setError] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
@@ -52,32 +52,45 @@ export const AdminProductListPage: React.FC = () => {
   const [deletingLoading, setDeletingLoading] = useState(false);
 
   const fetchProducts = async () => {
+    const revision = ++requestRevision.current;
     setLoading(true);
+    setError('');
     try {
       const res = await catalogApi.getProducts({
-        keyword: keyword.trim() || undefined,
+        keyword: debouncedKeyword.trim() || undefined,
         page: page - 1,
         size: 8,
         sortBy: 'id',
         sortDir: 'desc',
       });
+      if (revision !== requestRevision.current) return;
+      if (!res.content.length && page > 1) {
+        setPage(page - 1);
+        return;
+      }
       setProducts(res.content);
       setTotalPages(res.totalPages);
       setTotalElements(res.totalElements);
     } catch (err) {
-      console.error('Lỗi khi tải danh sách:', err);
+      if (revision === requestRevision.current) setError(errorMessage(err));
     } finally {
-      setLoading(false);
+      if (revision === requestRevision.current) setLoading(false);
     }
   };
 
   useEffect(() => {
-    catalogApi.getCategories().then(setCategories).catch(console.error);
+    catalogApi
+      .getCategories()
+      .then(setCategories)
+      .catch((err) => setError(errorMessage(err)));
   }, []);
 
   useEffect(() => {
     fetchProducts();
-  }, [keyword, page]);
+    return () => {
+      requestRevision.current += 1;
+    };
+  }, [debouncedKeyword, page]);
 
   const handleOpenCreate = () => {
     setEditingProduct(null);
@@ -103,7 +116,7 @@ export const AdminProductListPage: React.FC = () => {
       setDeletingProduct(null);
       fetchProducts();
     } catch (err) {
-      console.error('Lỗi khi xóa:', err);
+      setError(errorMessage(err));
     } finally {
       setDeletingLoading(false);
     }
@@ -114,15 +127,24 @@ export const AdminProductListPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, px: { xs: 2, sm: 3 } }}>
+    <Container maxWidth={false} disableGutters>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
         <Box>
           <Button component={Link} to="/" startIcon={<ArrowBack />} sx={{ mb: 1 }}>
             Xem cửa hàng công khai
           </Button>
           <Typography variant="h4" fontWeight={800}>
-            Quản Lý Sản Phẩm (Admin)
+            Sản phẩm
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Tổng cộng: <b>{totalElements}</b> sản phẩm trong hệ thống
@@ -131,6 +153,7 @@ export const AdminProductListPage: React.FC = () => {
         <Button
           variant="contained"
           startIcon={<Add />}
+          disabled={loading || !categories.length}
           onClick={handleOpenCreate}
           sx={{ borderRadius: 2, fontWeight: 'bold', py: 1.2, px: 3 }}
         >
@@ -138,6 +161,11 @@ export const AdminProductListPage: React.FC = () => {
         </Button>
       </Box>
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
       {/* Search Bar */}
       <Box sx={{ mb: 3, maxWidth: 400 }}>
         <TextField
@@ -160,9 +188,9 @@ export const AdminProductListPage: React.FC = () => {
       </Box>
 
       {/* Table List View */}
-      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 2 }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 'none' }}>
         <Table sx={{ minWidth: 750 }}>
-          <TableHead sx={{ bgcolor: '#f8fafc' }}>
+          <TableHead sx={{ bgcolor: '#f5f6f0' }}>
             <TableRow>
               <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Ảnh</TableCell>
@@ -171,7 +199,9 @@ export const AdminProductListPage: React.FC = () => {
               <TableCell sx={{ fontWeight: 'bold' }}>Danh Mục Con</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Giá Bán</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Trạng Thái</TableCell>
-              <TableCell align="center" sx={{ fontWeight: 'bold' }}>Hành Động</TableCell>
+              <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                Hành Động
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -207,7 +237,10 @@ export const AdminProductListPage: React.FC = () => {
                     >
                       <Box
                         component="img"
-                        src={p.thumbnailUrl || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=500'}
+                        src={
+                          p.thumbnailUrl ||
+                          'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=500'
+                        }
                         alt={p.name}
                         sx={{
                           width: '100%',
@@ -233,7 +266,11 @@ export const AdminProductListPage: React.FC = () => {
                       {formatVND(p.discountPrice || p.price)}
                     </Typography>
                     {p.discountPrice && (
-                      <Typography variant="caption" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ textDecoration: 'line-through' }}
+                      >
                         {formatVND(p.price)}
                       </Typography>
                     )}
@@ -246,10 +283,20 @@ export const AdminProductListPage: React.FC = () => {
                     />
                   </TableCell>
                   <TableCell align="center">
-                    <IconButton color="primary" onClick={() => handleOpenEdit(p)} size="small">
+                    <IconButton
+                      aria-label={`Sửa ${p.name}`}
+                      color="primary"
+                      onClick={() => handleOpenEdit(p)}
+                      size="small"
+                    >
                       <Edit fontSize="small" />
                     </IconButton>
-                    <IconButton color="error" onClick={() => handleOpenDelete(p)} size="small">
+                    <IconButton
+                      aria-label={`Xóa ${p.name}`}
+                      color="error"
+                      onClick={() => handleOpenDelete(p)}
+                      size="small"
+                    >
                       <Delete fontSize="small" />
                     </IconButton>
                   </TableCell>
@@ -264,6 +311,7 @@ export const AdminProductListPage: React.FC = () => {
       {totalPages > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <Pagination
+            disabled={loading}
             count={totalPages}
             page={page}
             onChange={(_, val) => setPage(val)}
@@ -290,6 +338,7 @@ export const AdminProductListPage: React.FC = () => {
         confirmText="Xóa Sản Phẩm"
         confirmColor="error"
         loading={deletingLoading}
+        error={error}
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
       />
