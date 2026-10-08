@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Container,
   Divider,
   FormControlLabel,
@@ -22,6 +23,12 @@ import {
   AccountBalanceOutlined,
 } from '@mui/icons-material';
 import { Controller, useForm } from 'react-hook-form';
+
+const AVAILABLE_COUPONS = [
+  { code: 'MOCKPROJECT', desc: 'Giảm 20% đơn từ 500k' },
+  { code: 'WELCOME10', desc: 'Giảm 10% đơn từ 1tr' },
+  { code: 'FREESHIP', desc: 'Giảm 5% đơn từ 500k' },
+];
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -67,13 +74,15 @@ export function CheckoutPage() {
     setCoupon(null);
     setCouponError('');
   }, [signature]);
-  const apply = async () => {
+  const apply = async (targetCode?: string) => {
+    const codeToApply = (targetCode || code).trim();
+    if (!codeToApply) return;
     const current = signature;
     setApplying(true);
     setCoupon(null);
     setCouponError('');
     try {
-      const result = await transactionApi.coupon(code.trim());
+      const result = await transactionApi.coupon(codeToApply);
       if (latestCart.current === current) setCoupon(result);
     } catch (err) {
       setCouponError(errorMessage(err));
@@ -336,7 +345,7 @@ export function CheckoutPage() {
                 </Alert>
               )}
               <Divider sx={{ mb: 3 }} />
-              <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+              <Stack direction="row" spacing={1} sx={{ mb: 1.5 }}>
                 <TextField
                   label="Mã ưu đãi"
                   size="small"
@@ -359,6 +368,27 @@ export function CheckoutPage() {
                   {applying ? 'Đang kiểm tra' : 'Áp dụng'}
                 </Button>
               </Stack>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.8, fontWeight: 600 }}>
+                  Mã ưu đãi có sẵn (bấm để chọn):
+                </Typography>
+                <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
+                  {AVAILABLE_COUPONS.map((c) => (
+                    <Chip
+                      key={c.code}
+                      label={`${c.code}: ${c.desc}`}
+                      size="small"
+                      variant={code === c.code ? 'filled' : 'outlined'}
+                      color={code === c.code ? 'primary' : 'default'}
+                      onClick={() => {
+                        setCode(c.code);
+                        void apply(c.code);
+                      }}
+                      sx={{ fontSize: '0.72rem', cursor: 'pointer' }}
+                    />
+                  ))}
+                </Stack>
+              </Box>
               {couponError && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                   {couponError}
