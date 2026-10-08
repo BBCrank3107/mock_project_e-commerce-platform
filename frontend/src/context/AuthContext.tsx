@@ -7,7 +7,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (data: LoginFormData) => Promise<void>;
+  login: (data: LoginFormData) => Promise<User>;
   register: (data: RegisterFormData) => Promise<void>;
   logout: () => void;
   loading: boolean;
@@ -39,18 +39,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchUser();
   }, []);
 
-  const login = async (data: LoginFormData) => {
+  const login = async (data: LoginFormData): Promise<User> => {
     const res = await authApi.login(data);
     localStorage.setItem('token', res.token);
     setToken(res.token);
-    setUser({
+    const loggedUser: User = {
       id: res.id,
       username: res.username,
       email: res.email,
       fullName: res.fullName,
       avatarUrl: res.avatarUrl,
       roles: res.roles,
-    });
+    };
+    setUser(loggedUser);
+    return loggedUser;
   };
 
   const register = async (data: RegisterFormData) => {

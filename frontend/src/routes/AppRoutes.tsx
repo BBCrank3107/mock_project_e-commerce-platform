@@ -43,11 +43,23 @@ const AdminOrderListPage = lazy(() =>
   }))
 );
 function AuthPage({ register = false }: { register?: boolean }) {
-  const { loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
   if (loading) return <LinearProgress />;
-  if (isAuthenticated) return <Navigate to={safeReturnPath(location.state)} replace />;
+  if (isAuthenticated) {
+    const defaultPath = isAdmin ? '/admin/orders' : '/';
+    const returnTarget = safeReturnPath(location.state);
+    return <Navigate to={returnTarget === '/' ? defaultPath : returnTarget} replace />;
+  }
   return register ? <RegisterPage /> : <LoginPage />;
+}
+
+function CustomerOrdersRoute() {
+  const { isAdmin } = useAuth();
+  if (isAdmin) {
+    return <Navigate to="/admin/orders" replace />;
+  }
+  return <MyOrdersPage />;
 }
 export function AppRoutes() {
   return (
@@ -83,7 +95,7 @@ export function AppRoutes() {
           path="/orders"
           element={
             <RequireAccount>
-              <MyOrdersPage />
+              <CustomerOrdersRoute />
             </RequireAccount>
           }
         />

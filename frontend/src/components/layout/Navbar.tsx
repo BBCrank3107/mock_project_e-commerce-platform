@@ -49,7 +49,9 @@ export function Navbar() {
   };
   const links = [
     { to: '/#collection', label: 'Bộ sưu tập' },
-    { to: '/orders', label: 'Đơn hàng của tôi' },
+    ...(isAdmin
+      ? [{ to: '/admin/orders', label: 'Quản trị' }]
+      : [{ to: '/orders', label: 'Đơn hàng của tôi' }]),
   ];
   const searchField = (
     <Box component="form" role="search" onSubmit={doSearch} sx={{ width: '100%' }}>
@@ -229,9 +231,11 @@ export function Navbar() {
           </Typography>
         </Box>
         <Divider />
-        <MenuItem component={Link} to="/orders" onClick={() => setMenu(null)}>
-          Đơn hàng của tôi
-        </MenuItem>
+        {!isAdmin && (
+          <MenuItem component={Link} to="/orders" onClick={() => setMenu(null)}>
+            Đơn hàng của tôi
+          </MenuItem>
+        )}
         {isAdmin && (
           <MenuItem component={Link} to="/admin/orders" onClick={() => setMenu(null)}>
             Không gian quản trị <ArrowForward sx={{ ml: 'auto', fontSize: 16 }} />
@@ -275,16 +279,6 @@ export function Navbar() {
               {link.label}
             </Button>
           ))}
-          {isAdmin && (
-            <Button
-              component={Link}
-              to="/admin/orders"
-              onClick={() => setMobile(false)}
-              sx={{ justifyContent: 'flex-start' }}
-            >
-              Quản trị
-            </Button>
-          )}
           {!isAuthenticated && (
             <Button
               variant="contained"

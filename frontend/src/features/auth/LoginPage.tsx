@@ -44,8 +44,14 @@ export const LoginPage: React.FC = () => {
     setErrorMessage(null);
     setLoading(true);
     try {
-      await login(data as any);
-      navigate(safeReturnPath(location.state), { replace: true });
+      const loggedUser = await login(data as any);
+      const returnTarget = safeReturnPath(location.state);
+      const isAdminUser = Boolean(loggedUser?.roles?.includes('ROLE_ADMIN'));
+      if (returnTarget === '/' && isAdminUser) {
+        navigate('/admin/orders', { replace: true });
+      } else {
+        navigate(returnTarget, { replace: true });
+      }
     } catch (err: any) {
       const msg =
         err.response?.data?.message ||
