@@ -3,6 +3,7 @@ import { BrowserRouter, useLocation } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { CartProvider } from './features/cart_checkout/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { WishlistProvider } from './context/WishlistContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { AppRoutes } from './routes/AppRoutes';
@@ -37,9 +38,11 @@ export default function App() {
       <CssBaseline />
       <AuthProvider>
         <CartProvider>
-          <BrowserRouter>
-            <Shell />
-          </BrowserRouter>
+          <WishlistProvider>
+            <BrowserRouter>
+              <Shell />
+            </BrowserRouter>
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>

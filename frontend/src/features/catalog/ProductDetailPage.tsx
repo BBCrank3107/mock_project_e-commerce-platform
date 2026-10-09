@@ -33,6 +33,7 @@ import { AddToCartButton } from '../cart_checkout/AddToCartButton';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../cart_checkout/CartContext';
 import { transactionApi, errorMessage, money } from '../cart_checkout/transactionApi';
+import { WishlistButton } from '../wishlist/WishlistButton';
 
 export function ProductDetailPage() {
   const { id } = useParams();
@@ -313,6 +314,7 @@ export function ProductDetailPage() {
               </IconButton>
             </Stack>
             <AddToCartButton productId={product.id} quantity={quantity} disabled={unavailable} />
+            <WishlistButton product={product} size="large" />
           </Stack>
           <Button
             fullWidth

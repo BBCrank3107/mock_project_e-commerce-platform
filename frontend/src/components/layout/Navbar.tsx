@@ -20,6 +20,7 @@ import {
 import {
   ArrowForward,
   Close,
+  FavoriteBorderOutlined,
   LogoutOutlined,
   MenuOutlined,
   PersonOutline,
@@ -29,10 +30,12 @@ import {
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../features/cart_checkout/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 export function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { cart } = useCart();
+  const { wishlistCount } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
   const [menu, setMenu] = useState<HTMLElement | null>(null);
@@ -169,6 +172,17 @@ export function Navbar() {
               {searchField}
             </Box>
             <Stack direction="row" spacing={0.5} alignItems="center" sx={{ ml: 'auto !important' }}>
+              <Tooltip title="Sản phẩm yêu thích">
+                <IconButton
+                  component={Link}
+                  to="/wishlist"
+                  aria-label={`Sản phẩm yêu thích, ${wishlistCount} sản phẩm`}
+                >
+                  <Badge badgeContent={wishlistCount} color="error">
+                    <FavoriteBorderOutlined sx={{ fontSize: 23 }} />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
               <Tooltip title="Giỏ hàng">
                 <IconButton
                   component={Link}
@@ -232,9 +246,14 @@ export function Navbar() {
         </Box>
         <Divider />
         {!isAdmin && (
-          <MenuItem component={Link} to="/orders" onClick={() => setMenu(null)}>
-            Đơn hàng của tôi
-          </MenuItem>
+          <>
+            <MenuItem component={Link} to="/wishlist" onClick={() => setMenu(null)}>
+              Sản phẩm yêu thích
+            </MenuItem>
+            <MenuItem component={Link} to="/orders" onClick={() => setMenu(null)}>
+              Đơn hàng của tôi
+            </MenuItem>
+          </>
         )}
         {isAdmin && (
           <MenuItem component={Link} to="/admin/orders" onClick={() => setMenu(null)}>
@@ -279,6 +298,17 @@ export function Navbar() {
               {link.label}
             </Button>
           ))}
+          {!isAdmin && (
+            <Button
+              component={NavLink}
+              to="/wishlist"
+              onClick={() => setMobile(false)}
+              startIcon={<FavoriteBorderOutlined />}
+              sx={{ justifyContent: 'flex-start' }}
+            >
+              Yêu thích ({wishlistCount})
+            </Button>
+          )}
           {!isAuthenticated && (
             <Button
               variant="contained"

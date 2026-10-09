@@ -4,6 +4,8 @@ import type { Product } from './types';
 import { AddToCartButton } from '../cart_checkout/AddToCartButton';
 import { money } from '../cart_checkout/transactionApi';
 import { ProductImage } from '../../components/common/ProductImage';
+import { WishlistButton } from '../wishlist/WishlistButton';
+
 export function ProductCard({ product }: { product: Product }) {
   const location = useLocation();
   const catalogState = { catalog: `${location.pathname}${location.search}#collection` };
@@ -21,29 +23,35 @@ export function ProductCard({ product }: { product: Product }) {
       }}
     >
       <Box
-        component={Link}
-        to={`/products/${product.id}`}
-        state={catalogState}
         sx={{
           aspectRatio: '1',
-          display: 'block',
           position: 'relative',
           bgcolor: '#eef0e9',
           overflow: 'hidden',
         }}
       >
-        <ProductImage
-          src={product.thumbnailUrl}
-          alt={product.name}
-          sx={{ transition: 'transform 400ms', '&:hover': { transform: 'scale(1.04)' } }}
-        />
+        <Box
+          component={Link}
+          to={`/products/${product.id}`}
+          state={catalogState}
+          sx={{ display: 'block', width: '100%', height: '100%' }}
+        >
+          <ProductImage
+            src={product.thumbnailUrl}
+            alt={product.name}
+            sx={{ transition: 'transform 400ms', '&:hover': { transform: 'scale(1.04)' } }}
+          />
+        </Box>
         {discounted && (
           <Chip
             size="small"
             label={`−${Math.round((1 - product.discountPrice! / product.price) * 100)}%`}
-            sx={{ position: 'absolute', top: 12, left: 12, bgcolor: '#fff', color: 'primary.main' }}
+            sx={{ position: 'absolute', top: 12, left: 12, bgcolor: '#fff', color: 'primary.main', fontWeight: 600 }}
           />
         )}
+        <Box sx={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}>
+          <WishlistButton product={product} size="small" />
+        </Box>
       </Box>
       <CardContent
         sx={{

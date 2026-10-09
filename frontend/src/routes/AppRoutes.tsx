@@ -42,6 +42,9 @@ const AdminOrderListPage = lazy(() =>
     default: m.AdminOrderListPage,
   }))
 );
+const WishlistPage = lazy(() =>
+  import('../features/wishlist/WishlistPage').then((m) => ({ default: m.WishlistPage }))
+);
 function AuthPage({ register = false }: { register?: boolean }) {
   const { loading, isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
@@ -88,6 +91,14 @@ export function AppRoutes() {
           element={
             <RequireAccount>
               <CheckoutPage />
+            </RequireAccount>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <RequireAccount>
+              <WishlistPage />
             </RequireAccount>
           }
         />
