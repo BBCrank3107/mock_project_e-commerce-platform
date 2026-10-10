@@ -4,6 +4,7 @@ import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { CartProvider } from './features/cart_checkout/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { AppRoutes } from './routes/AppRoutes';
@@ -37,13 +38,15 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <BrowserRouter>
-              <Shell />
-            </BrowserRouter>
-          </WishlistProvider>
-        </CartProvider>
+        <NotificationProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <BrowserRouter>
+                <Shell />
+              </BrowserRouter>
+            </WishlistProvider>
+          </CartProvider>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );

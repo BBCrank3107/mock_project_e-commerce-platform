@@ -31,6 +31,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../features/cart_checkout/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { NotificationMenu } from '../../features/notification/NotificationMenu';
 
 export function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
@@ -172,28 +173,33 @@ export function Navbar() {
               {searchField}
             </Box>
             <Stack direction="row" spacing={0.5} alignItems="center" sx={{ ml: 'auto !important' }}>
-              <Tooltip title="Sản phẩm yêu thích">
-                <IconButton
-                  component={Link}
-                  to="/wishlist"
-                  aria-label={`Sản phẩm yêu thích, ${wishlistCount} sản phẩm`}
-                >
-                  <Badge badgeContent={wishlistCount} color="error">
-                    <FavoriteBorderOutlined sx={{ fontSize: 23 }} />
-                  </Badge>
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Giỏ hàng">
-                <IconButton
-                  component={Link}
-                  to="/cart"
-                  aria-label={`Giỏ hàng, ${cart?.itemCount || 0} sản phẩm`}
-                >
-                  <Badge badgeContent={cart?.itemCount || 0} color="primary">
-                    <ShoppingBagOutlined sx={{ fontSize: 23 }} />
-                  </Badge>
-                </IconButton>
-              </Tooltip>
+              {!isAdmin && (
+                <Tooltip title="Sản phẩm yêu thích">
+                  <IconButton
+                    component={Link}
+                    to="/wishlist"
+                    aria-label={`Sản phẩm yêu thích, ${wishlistCount} sản phẩm`}
+                  >
+                    <Badge badgeContent={wishlistCount} color="error">
+                      <FavoriteBorderOutlined sx={{ fontSize: 23 }} />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
+              )}
+              {!isAdmin && (
+                <Tooltip title="Giỏ hàng">
+                  <IconButton
+                    component={Link}
+                    to="/cart"
+                    aria-label={`Giỏ hàng, ${cart?.itemCount || 0} sản phẩm`}
+                  >
+                    <Badge badgeContent={cart?.itemCount || 0} color="primary">
+                      <ShoppingBagOutlined sx={{ fontSize: 23 }} />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
+              )}
+              {isAuthenticated && <NotificationMenu />}
               {isAuthenticated ? (
                 <Tooltip title="Tài khoản">
                   <IconButton

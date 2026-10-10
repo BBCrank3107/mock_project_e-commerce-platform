@@ -11,6 +11,7 @@ import com.ecommerce.modules.order.repository.*;
 import com.ecommerce.modules.promotion_inventory.entity.Inventory;
 import com.ecommerce.modules.promotion_inventory.repository.InventoryRepository;
 import com.ecommerce.modules.promotion_inventory.service.PromotionService;
+import com.ecommerce.modules.notification.service.NotificationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class TransactionService {
     private final ShippingInfoRepository shipping;
     private final InventoryRepository inventory;
     private final PromotionService promotions;
+    private final NotificationService notifications;
     private final EntityManager entityManager;
 
     private TransactionException bad(String message) { return new TransactionException(HttpStatus.BAD_REQUEST, message); }
@@ -173,6 +175,9 @@ public class TransactionService {
         info.setPhoneNumber(request.phone().trim()); info.setShippingAddress(request.address().trim()); info.setCity(request.city().trim());
         info.setShippingStatus("PREPARING"); shipping.save(info);
         cartItems.deleteByCartId(cart.getId()); cart.setUpdatedAt(Instant.now());
+        var user = currentUser();
+        notifications.notifyUser(order.getUserId(), "Đặt hàng thành công", "Đơn hàng #" + order.getOrderCode() + " đã được đặt thành công.");
+        notifications.notifyAdmins("Đơn hàng mới", "Khách hàng " + user.getFullName() + " vừa đặt đơn hàng #" + order.getOrderCode() + ".");
         return orderView(order);
     }
 
@@ -206,12 +211,24 @@ public class TransactionService {
         var user = currentUser();
         var order = orders.findLockedById(id).orElseThrow(() -> missing("Không tìm thấy đơn hàng"));
         if (!order.getUserId().equals(user.getId())) throw missing("Không tìm thấy đơn hàng");
-        return transition(order, "CANCELLED");
+        var view = transition(order, "CANCELLED");
+        notifications.notifyUser(order.getUserId(), "Hủy đơn hàng thành công", "Đơn hàng #" + order.getOrderCode() + " đã được hủy.");
+        notifications.notifyAdmins("Đơn hàng bị hủy", "Khách hàng " + user.getFullName() + " đã hủy đơn hàng #" + order.getOrderCode() + ".");
+        return view;
     }
 
     public OrderView changeStatus(Long id, String status) {
         var order = orders.findLockedById(id).orElseThrow(() -> missing("Không tìm thấy đơn hàng"));
-        return transition(order, status);
+        var view = transition(order, status);
+        String statusText = switch (status) {
+            case "CONFIRMED" -> "Đã được xác nhận";
+            case "SHIPPING" -> "Đang được giao đến bạn";
+            case "COMPLETED" -> "Đã hoàn thành";
+            case "CANCELLED" -> "Đã bị hủy";
+            default -> status;
+        };
+        notifications.notifyUser(order.getUserId(), "Cập nhật đơn hàng", "Đơn hàng #" + order.getOrderCode() + ": " + statusText + ".");
+        return view;
     }
 
     private OrderView transition(com.ecommerce.modules.order.entity.Order order, String next) {

@@ -16,5 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmailIgnoreCase(String email);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+
+    @org.springframework.data.jpa.repository.Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName AND (u.isActive IS NULL OR u.isActive = true)")
+    java.util.List<User> findByRoleName(@org.springframework.data.repository.query.Param("roleName") String roleName);
 }
 
