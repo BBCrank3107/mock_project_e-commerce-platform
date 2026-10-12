@@ -23,10 +23,12 @@ import {
   Inventory2Outlined,
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../../features/cart_checkout/CartContext';
 import { useAuth } from '../../context/AuthContext';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { cart } = useCart();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -109,7 +111,7 @@ export const Navbar: React.FC = () => {
           </Box>
 
           {/* Navigation Actions */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <Button
               component={Link}
               to="/"
@@ -147,6 +149,7 @@ export const Navbar: React.FC = () => {
               </Button>
             )}
 
+            {isAuthenticated && <Button component={Link} to="/orders" sx={{ color: '#ffffff' }}>Đơn của tôi</Button>}
             {/* Shopping Cart Button */}
             <IconButton
               component={Link}
@@ -159,7 +162,7 @@ export const Navbar: React.FC = () => {
                 '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
               }}
             >
-              <Badge badgeContent={2} color="error">
+              <Badge badgeContent={cart?.itemCount || 0} color="error">
                 <ShoppingCartOutlined fontSize="small" />
               </Badge>
             </IconButton>

@@ -1,3 +1,8 @@
+import { CartPage } from '../features/cart_checkout/CartPage';
+import { CheckoutPage } from '../features/cart_checkout/CheckoutPage';
+import { MyOrdersPage } from '../features/cart_checkout/MyOrdersPage';
+import { OrderSuccessPage } from '../features/cart_checkout/OrderSuccessPage';
+import { RequireAccount } from '../features/cart_checkout/RequireAccount';
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ProductListPage } from '../features/catalog/ProductListPage';
@@ -5,7 +10,7 @@ import { ProductDetailPage } from '../features/catalog/ProductDetailPage';
 import { AdminProductListPage } from '../features/catalog/AdminProductListPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
-import { Box, Typography, Container } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -21,20 +26,10 @@ export const AppRoutes: React.FC = () => {
       {/* Member A: Admin Product Management */}
       <Route path="/admin/products" element={<AdminProductListPage />} />
 
-      {/* Placeholder cho Member B kết nối Cart & Checkout */}
-      <Route
-        path="/cart"
-        element={
-          <Container sx={{ py: 8, textAlign: 'center' }}>
-            <Typography variant="h5" fontWeight="bold">
-              Giỏ Hàng & Thanh Toán
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-              Phân hệ đang được hoàn thiện bởi Thành viên B (Order & Checkout module).
-            </Typography>
-          </Container>
-        }
-      />
+      <Route path="/cart" element={<RequireAccount><CartPage /></RequireAccount>} />
+      <Route path="/checkout" element={<RequireAccount><CheckoutPage /></RequireAccount>} />
+      <Route path="/orders" element={<RequireAccount><MyOrdersPage /></RequireAccount>} />
+      <Route path="/orders/:id/success" element={<RequireAccount><OrderSuccessPage /></RequireAccount>} />
 
       {/* 404 Not Found */}
       <Route
