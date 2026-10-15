@@ -49,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Cho phép xem danh mục và sản phẩm public
                         .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/products/**").permitAll()
+                        // Cho phép Chatbot AI tư vấn public
+                        .requestMatchers("/api/ai/**").permitAll()
                         // Cho phép OPTIONS pre-flight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Các request khác cho phép dev linh hoạt, bảo mật theo endpoint khi cần

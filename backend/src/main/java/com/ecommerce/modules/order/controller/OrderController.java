@@ -8,7 +8,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController @RequestMapping("/api/orders") @RequiredArgsConstructor
 public class OrderController {
     private final TransactionService service;
-    @PostMapping("/checkout") public ApiResponse<OrderView> checkout(@Valid @RequestBody Checkout body) { return ApiResponse.ok(service.checkout(body)); }
+    @PostMapping("/checkout")
+    public ApiResponse<OrderView> checkout(
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @Valid @RequestBody Checkout body
+    ) {
+        return ApiResponse.ok(service.checkout(body, idempotencyKey));
+    }
     @GetMapping("/my-orders") public ApiResponse<PageResponse<OrderView>> mine(@RequestParam(defaultValue="0") int page, @RequestParam(defaultValue="10") int size) { return ApiResponse.ok(service.myOrders(page, size)); }
     @GetMapping("/{id}") public ApiResponse<OrderView> detail(@PathVariable Long id) { return ApiResponse.ok(service.detail(id, false)); }
     @PostMapping("/{id}/cancel") public ApiResponse<OrderView> cancel(@PathVariable Long id) { return ApiResponse.ok(service.cancel(id)); }

@@ -7,6 +7,7 @@ import { WishlistProvider } from './context/WishlistContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { FloatingAiChat } from './components/ai/FloatingAiChat';
 import { AppRoutes } from './routes/AppRoutes';
 import { theme } from './theme';
 function Shell() {
@@ -30,6 +31,7 @@ function Shell() {
         <AppRoutes />
       </Box>
       {!pathname.startsWith('/admin') && <Footer />}
+      <FloatingAiChat />
     </Box>
   );
 }

@@ -1,5 +1,5 @@
 import axiosClient from '../../api/axiosClient';
-import type { Category, Product, PageResponse, Review, ProductFilterParams } from './types';
+import type { Category, Subcategory, Product, PageResponse, Review, ProductFilterParams } from './types';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -11,6 +11,34 @@ export const catalogApi = {
   getCategories: async (): Promise<Category[]> => {
     const res = await axiosClient.get<ApiResponse<Category[]>>('/categories');
     return res.data.data;
+  },
+
+  createCategory: async (data: {
+    name: string;
+    slug?: string;
+    description?: string;
+    iconUrl?: string;
+  }): Promise<Category> => {
+    const res = await axiosClient.post<ApiResponse<Category>>('/categories', data);
+    return res.data.data;
+  },
+
+  createSubcategory: async (data: {
+    categoryId: number;
+    name: string;
+    slug?: string;
+    description?: string;
+  }): Promise<Subcategory> => {
+    const res = await axiosClient.post<ApiResponse<Subcategory>>('/categories/subcategories', data);
+    return res.data.data;
+  },
+
+  deleteCategory: async (id: number): Promise<void> => {
+    await axiosClient.delete(`/categories/${id}`);
+  },
+
+  deleteSubcategory: async (id: number): Promise<void> => {
+    await axiosClient.delete(`/categories/subcategories/${id}`);
   },
 
   getProducts: async (params?: ProductFilterParams): Promise<PageResponse<Product>> => {

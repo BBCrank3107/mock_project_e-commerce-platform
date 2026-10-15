@@ -12,9 +12,24 @@ const ProductListPage = lazy(() =>
 const ProductDetailPage = lazy(() =>
   import('../features/catalog/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
 );
+const AdminDashboardPage = lazy(() =>
+  import('../features/dashboard/AdminDashboardPage').then((m) => ({
+    default: m.AdminDashboardPage,
+  }))
+);
 const AdminProductListPage = lazy(() =>
   import('../features/catalog/AdminProductListPage').then((m) => ({
     default: m.AdminProductListPage,
+  }))
+);
+const AdminCategoryListPage = lazy(() =>
+  import('../features/catalog/AdminCategoryListPage').then((m) => ({
+    default: m.AdminCategoryListPage,
+  }))
+);
+const AdminVoucherListPage = lazy(() =>
+  import('../features/promotion/AdminVoucherListPage').then((m) => ({
+    default: m.AdminVoucherListPage,
   }))
 );
 const LoginPage = lazy(() =>
@@ -126,9 +141,11 @@ export function AppRoutes() {
             </RequireAccount>
           }
         >
-          <Route index element={<Navigate to="orders" replace />} />
-          <Route path="products" element={<AdminProductListPage />} />
+          <Route index element={<AdminDashboardPage />} />
           <Route path="orders" element={<AdminOrderListPage />} />
+          <Route path="products" element={<AdminProductListPage />} />
+          <Route path="categories" element={<AdminCategoryListPage />} />
+          <Route path="vouchers" element={<AdminVoucherListPage />} />
         </Route>
         <Route
           path="*"

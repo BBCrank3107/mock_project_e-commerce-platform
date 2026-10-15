@@ -52,6 +52,11 @@ export function CheckoutPage() {
   const [applying, setApplying] = useState(false);
   const [error, setError] = useState('');
   const submitLock = useRef(false);
+  const [idempotencyKey] = useState<string>(() => {
+    return typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : 'idem-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+  });
   const signature = JSON.stringify(cart?.items.map((i) => [i.productId, i.quantity, i.unitPrice]));
   const latestCart = useRef(signature);
   latestCart.current = signature;
@@ -95,7 +100,10 @@ export function CheckoutPage() {
     submitLock.current = true;
     setError('');
     try {
-      const order = await transactionApi.checkout({ ...values, couponCode: coupon?.code });
+      const order = await transactionApi.checkout(
+        { ...values, couponCode: coupon?.code },
+        idempotencyKey
+      );
       await refresh();
       navigate(`/orders/${order.id}/success`, { replace: true });
     } catch (err) {
@@ -275,6 +283,28 @@ export function CheckoutPage() {
                     Đặt hàng thành công chưa đồng nghĩa khoản chuyển đã được xác nhận.
                   </Alert>
                 )}
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 1.5,
+                    bgcolor: 'action.hover',
+                    borderRadius: 1.5,
+                    border: '1px dashed',
+                    borderColor: 'divider',
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}
+                  >
+                    <Box component="span" sx={{ color: 'success.main', fontWeight: 700 }}>
+                      🛡️ Idempotency Protected:
+                    </Box>
+                    Khóa giao dịch: <code style={{ fontSize: '0.75rem' }}>{idempotencyKey.slice(0, 18)}...</code>
+                    (Chống trừ kho/tạo trùng đơn khi click đúp hoặc lag mạng)
+                  </Typography>
+                </Box>
                 <TextField
                   label="Lời nhắn cho đơn hàng (không bắt buộc)"
                   fullWidth

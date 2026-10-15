@@ -27,6 +27,7 @@ import { catalogApi } from './catalogApi';
 import type { Product, Category } from './types';
 import { ProductFormDialog } from './ProductFormDialog';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { ProductImage } from '../../components/common/ProductImage';
 
 export const AdminProductListPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -78,11 +79,17 @@ export const AdminProductListPage: React.FC = () => {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const data = await catalogApi.getCategories();
+      setCategories(data);
+    } catch (err) {
+      setError(errorMessage(err));
+    }
+  };
+
   useEffect(() => {
-    catalogApi
-      .getCategories()
-      .then(setCategories)
-      .catch((err) => setError(errorMessage(err)));
+    loadCategories();
   }, []);
 
   useEffect(() => {
@@ -150,15 +157,25 @@ export const AdminProductListPage: React.FC = () => {
             Tổng cộng: <b>{totalElements}</b> sản phẩm trong hệ thống
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          disabled={loading || !categories.length}
-          onClick={handleOpenCreate}
-          sx={{ borderRadius: 2, fontWeight: 'bold', py: 1.2, px: 3 }}
-        >
-          Thêm Sản Phẩm Mới
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+          <Button
+            variant="outlined"
+            component={Link}
+            to="/admin/categories"
+            sx={{ borderRadius: 2, fontWeight: 'bold', py: 1.2, px: 2.5 }}
+          >
+            Quản Lý Danh Mục
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            disabled={loading || !categories.length}
+            onClick={handleOpenCreate}
+            sx={{ borderRadius: 2, fontWeight: 'bold', py: 1.2, px: 3 }}
+          >
+            Thêm Sản Phẩm Mới
+          </Button>
+        </Box>
       </Box>
 
       {error && (
@@ -235,12 +252,8 @@ export const AdminProductListPage: React.FC = () => {
                         display: 'block',
                       }}
                     >
-                      <Box
-                        component="img"
-                        src={
-                          p.thumbnailUrl ||
-                          'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=500'
-                        }
+                      <ProductImage
+                        src={p.thumbnailUrl}
                         alt={p.name}
                         sx={{
                           width: '100%',
@@ -328,6 +341,7 @@ export const AdminProductListPage: React.FC = () => {
         categories={categories}
         onClose={() => setFormOpen(false)}
         onSuccess={fetchProducts}
+        onCategoriesRefresh={loadCategories}
       />
 
       {/* Modal Xác Nhận Xóa Nguy Hiểm (CUSTOM CONFIRM DIALOG - KHÔNG DÙNG WINDOW.CONFIRM) */}

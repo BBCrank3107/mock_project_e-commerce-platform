@@ -216,6 +216,22 @@ CREATE TABLE notifications (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 19. IDEMPOTENCY_RECORDS (Payment & Checkout Idempotency Protection)
+CREATE TABLE IF NOT EXISTS idempotency_records (
+    id BIGSERIAL PRIMARY KEY,
+    idempotency_key VARCHAR(120) NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    request_path VARCHAR(255) NOT NULL,
+    request_hash VARCHAR(64) NOT NULL,
+    order_id BIGINT REFERENCES orders(id) ON DELETE SET NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'PROCESSING',
+    response_code INT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_idempotency_key ON idempotency_records(idempotency_key);
+CREATE INDEX IF NOT EXISTS idx_idempotency_user ON idempotency_records(user_id);
+
 -- ==============================================================================
 -- INDEXES
 -- ==============================================================================
@@ -274,20 +290,20 @@ INSERT INTO subcategories (category_id, name, slug, description) VALUES
 -- 5. Products (15 Sản phẩm công nghệ bán chạy thực tế)
 INSERT INTO products (subcategory_id, name, slug, sku, price, discount_price, description, thumbnail_url, is_active) VALUES
 (1, 'iPhone 15 Pro Max 256GB Titan Tự Nhiên', 'iphone-15-pro-max-256gb-titan', 'APL-IP15PM-256', 29990000, 27490000, 'Thiết kế khung viền Titan siêu bền nhẹ, màn hình Super Retina XDR 120Hz mượt mà, chip A17 Pro mạnh mẽ bậc nhất cùng camera tiềm vọng zoom quang học 5x.', 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=600', TRUE),
-(1, 'Samsung Galaxy S24 Ultra 12GB/256GB AI Phone', 'samsung-galaxy-s24-ultra-ai', 'SS-S24U-256', 31990000, 28990000, 'Tích hợp bộ công cụ quyền năng Galaxy AI, khung viền Titanium sang trọng, camera 200MP bắt trọn chi tiết trong đêm và bút S-Pen thông minh tiện lợi.', 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=600', TRUE),
-(1, 'iPad Pro M4 11 inch Wi-Fi 256GB Space Black', 'ipad-pro-m4-11-inch-256gb', 'APL-IPADM4-11', 28990000, 26990000, 'Độ mỏng kỷ lục thế giới, màn hình Ultra Retina XDR Tandem OLED tuyệt đẹp, hiệu năng xử lý đột phá cùng chip Apple M4 thế hệ mới.', 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600', TRUE),
-(2, 'MacBook Pro 14 inch M3 Pro 18GB/512GB Space Black', 'macbook-pro-14-m3-pro-18-512', 'APL-MBP14-M3P', 49990000, 46990000, 'Cỗ máy trạm di động chuyên nghiệp cho lập trình viên và thiết kế đồ họa, thời lượng pin ấn tượng lên đến 22 giờ liên tục, màn hình Liquid Retina XDR rực rỡ.', 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600', TRUE),
-(2, 'MacBook Air 13 inch M3 8GB/256GB Midnight', 'macbook-air-13-m3-midnight', 'APL-MBA13-M3', 27990000, 25490000, 'Thiết kế nhôm nguyên khối siêu mỏng nhẹ, pin 18 giờ, không quạt tản nhiệt hoàn toàn yên tĩnh, màu xanh Midnight huyền bí cuốn hút.', 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=600', TRUE),
-(2, 'Asus ROG Zephyrus G16 OLED Gaming Laptop RTX 4070', 'asus-rog-zephyrus-g16-oled', 'ASUS-G16-4070', 58990000, 54990000, 'Laptop gaming mỏng nhẹ cao cấp nhất với màn hình ROG Nebula OLED 240Hz, CPU Intel Core Ultra 9 và card đồ họa NVIDIA GeForce RTX 4070.', 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=600', TRUE),
-(3, 'Tai nghe chống ồn Sony WH-1000XM5 Silver', 'tai-nghe-sony-wh-1000xm5-silver', 'SNY-WH1000XM5', 8490000, 6990000, 'Công nghệ chống ồn hàng đầu thế giới với bộ xử lý kép V1 và QN1, chất âm Hi-Res Audio chuẩn phòng thu, đàm thoại trong trẻo với 8 micro AI.', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600', TRUE),
-(3, 'Tai nghe Apple AirPods Pro 2 USB-C MagSafe', 'airpods-pro-2-usb-c', 'APL-APP2-USBC', 6190000, 5290000, 'Chống ồn chủ động mạnh gấp 2 lần, tính năng Nhận biết Cuộc trò chuyện thông minh và Âm thanh Không gian cá nhân hóa với cổng sạc Type-C tiện lợi.', 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=600', TRUE),
-(3, 'Loa Bluetooth Marshall Emberton II Black & Brass', 'loa-marshall-emberton-ii', 'MSH-EMB2-BLK', 4290000, 3690000, 'Âm thanh đa hướng True Stereophonic 360 độ độc quyền, thời gian phát nhạc trên 30 giờ, chuẩn chống nước bụi IP67 chuẩn phong cách cổ điển.', 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=600', TRUE),
-(4, 'Apple Watch Ultra 2 GPS + Cellular 49mm Titan', 'apple-watch-ultra-2-49mm', 'APL-AWU2-49', 21990000, 19990000, 'Màn hình sáng nhất 3000 nits, vỏ Titan chống ăn mòn, nút Action tùy biến, đo độ sâu dưới nước và GPS tần số kép cho vận động viên chuyên nghiệp.', 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=600', TRUE),
-(4, 'Samsung Galaxy Watch 6 Classic 47mm LTE Black', 'samsung-galaxy-watch-6-classic-47mm', 'SS-GW6C-47', 8990000, 7490000, 'Viền xoay bezel vật lý đặc trưng, mặt kính Sapphire bền bỉ, tính năng theo dõi giấc ngủ cá nhân hóa và phân tích thành phần cơ thể BIA.', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600', TRUE),
-(5, 'Chuột không dây công thái học Logitech MX Master 3S', 'logitech-mx-master-3s', 'LOG-MX3S-GRA', 2490000, 2090000, 'Cảm biến 8000 DPI lướt trên mọi bề mặt kính, cuộn siêu tốc MagSpeed 1000 dòng/giây, nút bấm Quiet Clicks êm ái giảm 90% tiếng ồn.', 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600', TRUE),
-(5, 'Bàn phím cơ không dây Keychron K2 Pro QMK/VIA', 'keychron-k2-pro-wireless', 'KEY-K2PRO-RED', 2650000, 2290000, 'Bố cục 75% gọn gàng, hỗ trợ tùy biến phím qua QMK/VIA, switch Keychron K Pro êm ái, kết nối Bluetooth 5.1 cùng lúc 3 thiết bị Mac/Windows.', 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600', TRUE),
-(5, 'Củ sạc nhanh Anker Prime 67W GaN 3 Cổng A2669', 'cu-sac-anker-prime-67w-gan', 'ANK-P67-GAN', 1390000, 1090000, 'Công nghệ GaNPrime độc quyền nhỏ gọn hơn 51%, phân phối điện năng thông minh MultiDevice, sạc nhanh đồng thời 2 laptop và 1 điện thoại.', 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600', TRUE),
-(5, 'Cáp sạc Type-C to C Ugreen 100W Bọc Dù 2M', 'cap-sac-ugreen-100w-type-c-2m', 'UGR-CC-100W', 250000, 189000, 'Hỗ trợ sạc nhanh chuẩn Power Delivery 100W 5A, chip E-Marker bảo vệ quá nhiệt quá dòng, vỏ bọc dù bện nylon chống đứt gãy 20.000 lần gập.', 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600', TRUE);
+(2, 'Samsung Galaxy S24 Ultra 12GB/256GB AI Phone', 'samsung-galaxy-s24-ultra-ai', 'SS-S24U-256', 31990000, 28990000, 'Tích hợp bộ công cụ quyền năng Galaxy AI, khung viền Titanium sang trọng, camera 200MP bắt trọn chi tiết trong đêm và bút S-Pen thông minh tiện lợi.', 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=600', TRUE),
+(3, 'iPad Pro M4 11 inch Wi-Fi 256GB Space Black', 'ipad-pro-m4-11-inch-256gb', 'APL-IPADM4-11', 28990000, 26990000, 'Độ mỏng kỷ lục thế giới, màn hình Ultra Retina XDR Tandem OLED tuyệt đẹp, hiệu năng xử lý đột phá cùng chip Apple M4 thế hệ mới.', 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600', TRUE),
+(4, 'MacBook Pro 14 inch M3 Pro 18GB/512GB Space Black', 'macbook-pro-14-m3-pro-18-512', 'APL-MBP14-M3P', 49990000, 46990000, 'Cỗ máy trạm di động chuyên nghiệp cho lập trình viên và thiết kế đồ họa, thời lượng pin ấn tượng lên đến 22 giờ liên tục, màn hình Liquid Retina XDR rực rỡ.', 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600', TRUE),
+(4, 'MacBook Air 13 inch M3 8GB/256GB Midnight', 'macbook-air-13-m3-midnight', 'APL-MBA13-M3', 27990000, 25490000, 'Thiết kế nhôm nguyên khối siêu mỏng nhẹ, pin 18 giờ, không quạt tản nhiệt hoàn toàn yên tĩnh, màu xanh Midnight huyền bí cuốn hút.', 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=600', TRUE),
+(5, 'Asus ROG Zephyrus G16 OLED Gaming Laptop RTX 4070', 'asus-rog-zephyrus-g16-oled', 'ASUS-G16-4070', 58990000, 54990000, 'Laptop gaming mỏng nhẹ cao cấp nhất với màn hình ROG Nebula OLED 240Hz, CPU Intel Core Ultra 9 và card đồ họa NVIDIA GeForce RTX 4070.', 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=600', TRUE),
+(6, 'Tai nghe chống ồn Sony WH-1000XM5 Silver', 'tai-nghe-sony-wh-1000xm5-silver', 'SNY-WH1000XM5', 8490000, 6990000, 'Công nghệ chống ồn hàng đầu thế giới với bộ xử lý kép V1 và QN1, chất âm Hi-Res Audio chuẩn phòng thu, đàm thoại trong trẻo với 8 micro AI.', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600', TRUE),
+(6, 'Tai nghe Apple AirPods Pro 2 USB-C MagSafe', 'airpods-pro-2-usb-c', 'APL-APP2-USBC', 6190000, 5290000, 'Chống ồn chủ động mạnh gấp 2 lần, tính năng Nhận biết Cuộc trò chuyện thông minh và Âm thanh Không gian cá nhân hóa với cổng sạc Type-C tiện lợi.', 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=600', TRUE),
+(7, 'Loa Bluetooth Marshall Emberton II Black & Brass', 'loa-marshall-emberton-ii', 'MSH-EMB2-BLK', 4290000, 3690000, 'Âm thanh đa hướng True Stereophonic 360 độ độc quyền, thời gian phát nhạc trên 30 giờ, chuẩn chống nước bụi IP67 chuẩn phong cách cổ điển.', 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=600', TRUE),
+(8, 'Apple Watch Ultra 2 GPS + Cellular 49mm Titan', 'apple-watch-ultra-2-49mm', 'APL-AWU2-49', 21990000, 19990000, 'Màn hình sáng nhất 3000 nits, vỏ Titan chống ăn mòn, nút Action tùy biến, đo độ sâu dưới nước và GPS tần số kép cho vận động viên chuyên nghiệp.', 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=600', TRUE),
+(9, 'Samsung Galaxy Watch 6 Classic 47mm LTE Black', 'samsung-galaxy-watch-6-classic-47mm', 'SS-GW6C-47', 8990000, 7490000, 'Viền xoay bezel vật lý đặc trưng, mặt kính Sapphire bền bỉ, tính năng theo dõi giấc ngủ cá nhân hóa và phân tích thành phần cơ thể BIA.', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600', TRUE),
+(10, 'Chuột không dây công thái học Logitech MX Master 3S', 'logitech-mx-master-3s', 'LOG-MX3S-GRA', 2490000, 2090000, 'Cảm biến 8000 DPI lướt trên mọi bề mặt kính, cuộn siêu tốc MagSpeed 1000 dòng/giây, nút bấm Quiet Clicks êm ái giảm 90% tiếng ồn.', 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600', TRUE),
+(10, 'Bàn phím cơ không dây Keychron K2 Pro QMK/VIA', 'keychron-k2-pro-wireless', 'KEY-K2PRO-RED', 2650000, 2290000, 'Bố cục 75% gọn gàng, hỗ trợ tùy biến phím qua QMK/VIA, switch Keychron K Pro êm ái, kết nối Bluetooth 5.1 cùng lúc 3 thiết bị Mac/Windows.', 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600', TRUE),
+(10, 'Củ sạc nhanh Anker Prime 67W GaN 3 Cổng A2669', 'cu-sac-anker-prime-67w-gan', 'ANK-P67-GAN', 1390000, 1090000, 'Công nghệ GaNPrime độc quyền nhỏ gọn hơn 51%, phân phối điện năng thông minh MultiDevice, sạc nhanh đồng thời 2 laptop và 1 điện thoại.', 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600', TRUE),
+(10, 'Cáp sạc Type-C to C Ugreen 100W Bọc Dù 2M', 'cap-sac-ugreen-100w-type-c-2m', 'UGR-CC-100W', 250000, 189000, 'Hỗ trợ sạc nhanh chuẩn Power Delivery 100W 5A, chip E-Marker bảo vệ quá nhiệt quá dòng, vỏ bọc dù bện nylon chống đứt gãy 20.000 lần gập.', 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600', TRUE);
 
 -- 6. Product Images (Thêm ảnh chi tiết cho tính năng upload/gallery)
 INSERT INTO product_images (product_id, image_url, is_thumbnail) VALUES

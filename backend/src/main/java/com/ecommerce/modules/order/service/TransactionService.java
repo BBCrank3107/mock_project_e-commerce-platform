@@ -12,19 +12,24 @@ import com.ecommerce.modules.promotion_inventory.entity.Inventory;
 import com.ecommerce.modules.promotion_inventory.repository.InventoryRepository;
 import com.ecommerce.modules.promotion_inventory.service.PromotionService;
 import com.ecommerce.modules.notification.service.NotificationService;
+import com.ecommerce.modules.order.entity.IdempotencyRecord;
+import com.ecommerce.modules.order.repository.IdempotencyRecordRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.*;
 
-@Service @RequiredArgsConstructor @Transactional
+@Slf4j @Service @RequiredArgsConstructor @Transactional
 public class TransactionService {
     private final UserRepository users;
     private final ProductRepository products;
@@ -38,6 +43,7 @@ public class TransactionService {
     private final PromotionService promotions;
     private final NotificationService notifications;
     private final EntityManager entityManager;
+    private final IdempotencyRecordRepository idempotencyRecords;
 
     private TransactionException bad(String message) { return new TransactionException(HttpStatus.BAD_REQUEST, message); }
     private TransactionException missing(String message) { return new TransactionException(HttpStatus.NOT_FOUND, message); }
@@ -142,7 +148,81 @@ public class TransactionService {
         return new InventoryView(id, stock(id));
     }
 
+    private String computeHash(Checkout request) {
+        try {
+            String data = (request.recipientName() == null ? "" : request.recipientName().trim()) + "|"
+                    + (request.phone() == null ? "" : request.phone().trim()) + "|"
+                    + (request.address() == null ? "" : request.address().trim()) + "|"
+                    + (request.city() == null ? "" : request.city().trim()) + "|"
+                    + (request.couponCode() == null ? "" : request.couponCode().trim()) + "|"
+                    + (request.paymentMethod() == null ? "" : request.paymentMethod().trim());
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            return "UNKNOWN";
+        }
+    }
+
     public OrderView checkout(Checkout request) {
+        return checkout(request, null);
+    }
+
+    public OrderView checkout(Checkout request, String idempotencyKey) {
+        if (idempotencyKey != null && !idempotencyKey.trim().isBlank()) {
+            String trimmedKey = idempotencyKey.trim();
+            String hash = computeHash(request);
+            var existingRecord = idempotencyRecords.findByIdempotencyKey(trimmedKey);
+            if (existingRecord.isPresent()) {
+                var rec = existingRecord.get();
+                if (!rec.getRequestHash().equals(hash)) {
+                    throw bad("Idempotency-Key conflict: Dữ liệu đặt hàng không trùng khớp với yêu cầu trước đó");
+                }
+                if ("COMPLETED".equals(rec.getStatus()) && rec.getOrderId() != null) {
+                    log.warn("[IDEMPOTENCY] Cache hit for key {}. Returning existing order id: {} without re-executing checkout!", trimmedKey, rec.getOrderId());
+                    return detail(rec.getOrderId(), false);
+                }
+                if ("PROCESSING".equals(rec.getStatus())) {
+                    throw new TransactionException(HttpStatus.CONFLICT, "Giao dịch đang được xử lý, vui lòng không gửi lại liên tục");
+                }
+            }
+
+            var record = IdempotencyRecord.builder()
+                    .idempotencyKey(trimmedKey)
+                    .userId(currentUser().getId())
+                    .requestPath("/api/orders/checkout")
+                    .requestHash(hash)
+                    .status("PROCESSING")
+                    .createdAt(Instant.now())
+                    .updatedAt(Instant.now())
+                    .build();
+            idempotencyRecords.saveAndFlush(record);
+
+            try {
+                OrderView view = executeCheckout(request);
+                record.setOrderId(view.id());
+                record.setStatus("COMPLETED");
+                record.setResponseCode(200);
+                record.setUpdatedAt(Instant.now());
+                idempotencyRecords.save(record);
+                return view;
+            } catch (Exception ex) {
+                record.setStatus("FAILED");
+                record.setUpdatedAt(Instant.now());
+                idempotencyRecords.save(record);
+                throw ex;
+            }
+        }
+        return executeCheckout(request);
+    }
+
+    private OrderView executeCheckout(Checkout request) {
         var cart = lockedCart();
         var items = cartItems.findByCartIdOrderByProductIdAsc(cart.getId());
         if (items.isEmpty()) throw bad("Giỏ hàng đang trống");

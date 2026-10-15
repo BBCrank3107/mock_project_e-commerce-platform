@@ -25,7 +25,12 @@ public class FileStorageService {
         try {
             Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
             if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+                Path backendPath = Paths.get("backend", uploadDir).toAbsolutePath().normalize();
+                if (Files.exists(backendPath)) {
+                    uploadPath = backendPath;
+                } else {
+                    Files.createDirectories(uploadPath);
+                }
             }
 
             String originalFilename = file.getOriginalFilename();

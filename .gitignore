@@ -24,6 +24,9 @@ backend/*.log
 backend/uploads/
 **/uploads/
 !backend/uploads/.gitkeep
+backend/src/main/resources/application-local.yml
+**/application-local.yml
+*-local.yml
 
 # Node & React (Frontend)
 frontend/node_modules/

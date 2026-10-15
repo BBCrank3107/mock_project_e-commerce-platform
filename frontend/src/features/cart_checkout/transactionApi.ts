@@ -20,8 +20,12 @@ export const transactionApi = {
     (await client.delete<Response<Cart>>(`/cart/items/${id}`)).data.data,
   coupon: async (code: string) =>
     (await client.post<Response<Coupon>>('/promotions/apply', { code })).data.data,
-  checkout: async (input: CheckoutInput) =>
-    (await client.post<Response<Order>>('/orders/checkout', input)).data.data,
+  checkout: async (input: CheckoutInput, idempotencyKey?: string) =>
+    (
+      await client.post<Response<Order>>('/orders/checkout', input, {
+        headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
+      })
+    ).data.data,
   myOrders: async (page = 0) =>
     (await client.get<Response<Page<Order>>>('/orders/my-orders', { params: { page, size: 10 } }))
       .data.data,

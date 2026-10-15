@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: ecommerce-backend
+  config:
+    import: "optional:classpath:application-local.yml"
 
   datasource:
     url: jdbc:postgresql://localhost:5432/ecommerce_db
@@ -32,6 +34,9 @@ app:
   jwt:
     secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
     expiration-ms: 86400000 # 1 ngày
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: gemini-3.8-flash
 
 # Swagger UI configuration
 springdoc:

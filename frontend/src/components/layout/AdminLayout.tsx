@@ -1,5 +1,12 @@
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { Inventory2Outlined, ReceiptLongOutlined, ArrowBackOutlined } from '@mui/icons-material';
+import {
+  Inventory2Outlined,
+  ReceiptLongOutlined,
+  ArrowBackOutlined,
+  CategoryOutlined,
+  DashboardOutlined,
+  ConfirmationNumberOutlined,
+} from '@mui/icons-material';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 export function AdminLayout() {
   return (
@@ -27,6 +34,12 @@ export function AdminLayout() {
           >
             {[
               {
+                to: '/admin',
+                icon: <DashboardOutlined fontSize="small" />,
+                label: 'Tổng quan',
+                end: true,
+              },
+              {
                 to: '/admin/orders',
                 icon: <ReceiptLongOutlined fontSize="small" />,
                 label: 'Đơn hàng',
@@ -36,11 +49,22 @@ export function AdminLayout() {
                 icon: <Inventory2Outlined fontSize="small" />,
                 label: 'Sản phẩm',
               },
+              {
+                to: '/admin/categories',
+                icon: <CategoryOutlined fontSize="small" />,
+                label: 'Danh mục',
+              },
+              {
+                to: '/admin/vouchers',
+                icon: <ConfirmationNumberOutlined fontSize="small" />,
+                label: 'Voucher',
+              },
             ].map((item) => (
               <Box
                 key={item.to}
                 component={NavLink}
                 to={item.to}
+                end={item.end}
                 sx={{
                   display: 'flex',
                   gap: 1.5,
